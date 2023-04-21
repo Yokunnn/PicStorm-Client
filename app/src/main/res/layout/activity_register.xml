@@ -1,0 +1,120 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".RegisterActivity"
+    android:background="@color/picStorm_pink"
+    android:orientation="vertical"
+    android:gravity="center">
+    
+    <androidx.cardview.widget.CardView
+        android:layout_width="300dp"
+        android:layout_height="450dp"
+        android:orientation="vertical"
+        app:cardCornerRadius="10dp">
+        <ImageButton
+            android:id="@+id/imageButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@android:color/transparent"
+            android:contentDescription="@string/app_name"
+            android:minWidth="48dp"
+            android:minHeight="48dp"
+            app:srcCompat="@drawable/ic_back_arrow" />
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="410dp"
+            android:layout_marginTop="40dp"
+            android:paddingHorizontal="40dp">
+
+            <androidx.appcompat.widget.AppCompatEditText
+                android:id="@+id/editTextLogin"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:ems="10"
+                android:fontFamily="@font/forum"
+                android:hint="@string/name"
+                android:inputType="textPersonName"
+                android:minHeight="48dp"
+                android:textColor="@color/picStorm_grey"
+                android:textSize="20sp"
+                app:layout_constraintBottom_toTopOf="@+id/editTextEmail"
+                app:layout_constraintTop_toTopOf="parent"
+                tools:layout_editor_absoluteX="40dp" />
+
+            <androidx.appcompat.widget.AppCompatEditText
+                android:id="@+id/editTextEmail"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:ems="10"
+                android:fontFamily="@font/forum"
+                android:hint="@string/email"
+                android:inputType="textEmailAddress"
+                android:minHeight="48dp"
+                android:textColor="@color/picStorm_grey"
+                android:textSize="20sp"
+                app:layout_constraintTop_toBottomOf="@id/editTextLogin"
+                app:layout_constraintBottom_toTopOf="@+id/editTextPassword"
+                tools:layout_editor_absoluteX="40dp" />
+
+            <androidx.appcompat.widget.AppCompatEditText
+                android:id="@+id/editTextPassword"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:ems="10"
+                android:fontFamily="@font/forum"
+                android:hint="@string/password"
+                android:inputType="textPassword"
+                android:minHeight="48dp"
+                android:textColor="@color/picStorm_grey"
+                android:textSize="20sp"
+                app:layout_constraintTop_toBottomOf="@id/editTextEmail"
+                app:layout_constraintBottom_toTopOf="@id/editTextPasswordRepeat"
+                tools:layout_editor_absoluteX="40dp" />
+            <androidx.appcompat.widget.AppCompatEditText
+                android:id="@+id/editTextPasswordRepeat"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:ems="10"
+                android:fontFamily="@font/forum"
+                android:hint="@string/passwordRepeat"
+                android:inputType="textPassword"
+                android:minHeight="48dp"
+                android:textColor="@color/picStorm_grey"
+                android:textSize="20sp"
+                app:layout_constraintTop_toBottomOf="@id/editTextPassword"
+                app:layout_constraintBottom_toTopOf="@id/button_reg"
+                tools:layout_editor_absoluteX="40dp" />
+            <androidx.appcompat.widget.AppCompatButton
+                android:id="@+id/button_reg"
+                android:layout_width="match_parent"
+                android:layout_height="48dp"
+                android:background="@drawable/button_login_shape"
+                android:fontFamily="@font/forum"
+                android:text="@string/registerTo"
+                android:textAllCaps="false"
+                android:textColor="@color/black"
+                android:textSize="20sp"
+                app:layout_constraintBottom_toTopOf="@id/button_login"
+                app:layout_constraintTop_toBottomOf="@+id/editTextPasswordRepeat"
+                tools:layout_editor_absoluteX="40dp" />
+            <androidx.appcompat.widget.AppCompatButton
+                android:id="@+id/button_login"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="#0000"
+                android:fontFamily="@font/forum"
+                android:text="@string/login"
+                android:textAllCaps="false"
+                android:textColor="@color/picStorm_violet"
+                android:textSize="14sp"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/button_reg" />
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+    </androidx.cardview.widget.CardView>
+</LinearLayout>

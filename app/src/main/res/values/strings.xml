@@ -1,3 +1,10 @@
 <resources>
     <string name="app_name">PicStorm</string>
+    <string name="name">Имя</string>
+    <string name="password">Пароль</string>
+    <string name="login">Войти</string>
+    <string name="register">Регистрация</string>
+    <string name="email">Эл. почта</string>
+    <string name="passwordRepeat">Повторите пароль</string>
+    <string name="registerTo">Зарегистрироваться</string>
 </resources>
