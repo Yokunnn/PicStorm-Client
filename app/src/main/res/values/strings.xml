@@ -1,5 +1,6 @@
 <resources>
     <string name="app_name">PicStorm</string>
+    <string name="contentDescription">Content description</string>
     <string name="name">Имя</string>
     <string name="password">Пароль</string>
     <string name="login">Войти</string>
@@ -7,4 +8,6 @@
     <string name="email">Эл. почта</string>
     <string name="passwordRepeat">Повторите пароль</string>
     <string name="registerTo">Зарегистрироваться</string>
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="search">Поиск</string>
 </resources>
