@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".SearchActivity"
+    tools:context=".SearchFragment"
     android:background="@color/picStorm_pink">
 
     <androidx.cardview.widget.CardView
@@ -29,14 +29,12 @@
                 android:id="@+id/editTextSearch"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:textAppearance="@style/Text.Forum.20.Grey"
                 android:ems="15"
                 android:background="@android:color/transparent"
-                android:fontFamily="@font/forum"
                 android:hint="@string/search"
                 android:inputType="textPersonName"
                 android:minHeight="48dp"
-                android:textColor="@color/picStorm_grey"
-                android:textSize="20sp"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />

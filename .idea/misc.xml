@@ -9,12 +9,17 @@
         <entry key="..\:/Users/user/AndroidStudioProjects/PicStorm/app/src/main/res/drawable/ic_back_arrow.xml" value="0.1495" />
         <entry key="..\:/Users/user/AndroidStudioProjects/PicStorm/app/src/main/res/drawable/ic_launcher_background.xml" value="0.1495" />
         <entry key="..\:/Users/user/AndroidStudioProjects/PicStorm/app/src/main/res/drawable/splash_logo_shape.xml" value="0.183" />
-        <entry key="..\:/Users/user/AndroidStudioProjects/PicStorm/app/src/main/res/layout/activity_login.xml" value="0.6" />
+        <entry key="..\:/Users/user/AndroidStudioProjects/PicStorm/app/src/main/res/layout/activity_login.xml" value="0.264" />
         <entry key="..\:/Users/user/AndroidStudioProjects/PicStorm/app/src/main/res/layout/activity_main.xml" value="0.25416666666666665" />
         <entry key="..\:/Users/user/AndroidStudioProjects/PicStorm/app/src/main/res/layout/activity_register.xml" value="0.264" />
         <entry key="..\:/Users/user/AndroidStudioProjects/PicStorm/app/src/main/res/layout/activity_search.xml" value="0.264" />
         <entry key="..\:/Users/user/AndroidStudioProjects/PicStorm/app/src/main/res/layout/activity_splash.xml" value="0.25416666666666665" />
         <entry key="..\:/Users/user/AndroidStudioProjects/PicStorm/app/src/main/res/layout/fragment_bottom_nav.xml" value="0.264" />
+        <entry key="..\:/Users/user/AndroidStudioProjects/PicStorm/app/src/main/res/layout/fragment_feed.xml" value="0.25416666666666665" />
+        <entry key="..\:/Users/user/AndroidStudioProjects/PicStorm/app/src/main/res/layout/fragment_login.xml" value="0.264" />
+        <entry key="..\:/Users/user/AndroidStudioProjects/PicStorm/app/src/main/res/layout/fragment_register.xml" value="0.24010416666666667" />
+        <entry key="..\:/Users/user/AndroidStudioProjects/PicStorm/app/src/main/res/layout/fragment_search.xml" value="0.24010416666666667" />
+        <entry key="..\:/Users/user/AndroidStudioProjects/PicStorm/app/src/main/res/layout/fragment_splash.xml" value="0.25416666666666665" />
         <entry key="..\:/Users/user/AndroidStudioProjects/PicStorm/app/src/main/res/layout/login_activity.xml" value="0.4" />
       </map>
     </option>
