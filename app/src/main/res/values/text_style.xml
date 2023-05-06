@@ -3,8 +3,20 @@
 
     <style name="Text" parent="TextAppearance.AppCompat"/>
 
+    <style name="Text.ClickerScript">
+        <item name="fontFamily">@font/clicker_script</item>
+    </style>
+
+    <style name="Text.ClickerScript.50">
+        <item name="android:textSize">50sp</item>
+    </style>
+
     <style name="Text.Forum">
         <item name="fontFamily">@font/forum</item>
+    </style>
+
+    <style name="Text.Forum.24">
+        <item name="android:textSize">24sp</item>
     </style>
 
     <style name="Text.Forum.20">
@@ -13,6 +25,10 @@
 
     <style name="Text.Forum.14">
         <item name="android:textSize">14sp</item>
+    </style>
+
+    <style name="Text.Forum.10">
+        <item name="android:textSize">10sp</item>
     </style>
 
     <style name="Text.Forum.20.Grey">

@@ -9,8 +9,9 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.navigation.fragment.findNavController
 import com.example.picstorm.databinding.FragmentSplashBinding
+import dagger.hilt.android.AndroidEntryPoint
 
-
+@AndroidEntryPoint
 class SplashFragment : Fragment() {
 
     private lateinit var binding: FragmentSplashBinding
@@ -27,7 +28,7 @@ class SplashFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
         Handler(Looper.getMainLooper()).postDelayed({
-            findNavController().navigate(R.id.action_splashFragment_to_loginFragment)
+            findNavController().navigate(R.id.action_splashFragment_to_feedFragment)
         }, 1000)
     }
 }

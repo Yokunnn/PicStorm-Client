@@ -10,4 +10,13 @@
     <string name="registerTo">Зарегистрироваться</string>
     <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="search">Поиск</string>
+    <string name="personal">Личная</string>
+    <string name="global">Общая</string>
+    <string name="dateFilter">Фильтр по дате</string>
+    <string name="ratingFilter">Фильтр по рейтингу</string>
+    <string name="withoutFilter">Без фильтра</string>
+    <string name="byDay">За день</string>
+    <string name="byWeek">За неделю</string>
+    <string name="byLikes">По лайкам</string>
+    <string name="byDislikes">По дизлайкам</string>
 </resources>

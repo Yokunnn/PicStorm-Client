@@ -16,7 +16,7 @@
         app:cardCornerRadius="10dp">
 
         <androidx.appcompat.widget.AppCompatImageButton
-            android:id="@+id/imageButton"
+            android:id="@+id/exitImageButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:background="@android:color/transparent"
@@ -40,6 +40,8 @@
                 android:hint="@string/name"
                 android:inputType="textPersonName"
                 android:minHeight="48dp"
+                android:imeOptions="actionNext"
+                android:nextFocusDown="@+id/editTextPassword"
                 app:layout_constraintBottom_toTopOf="@id/editTextPassword"
                 app:layout_constraintTop_toTopOf="parent"
                 tools:layout_editor_absoluteX="40dp" />
@@ -52,6 +54,7 @@
                 android:ems="10"
                 android:inputType="textPassword"
                 android:minHeight="48dp"
+                android:imeOptions="actionDone"
                 android:hint="@string/password"
                 app:layout_constraintBottom_toTopOf="@id/button_login"
                 app:layout_constraintTop_toBottomOf="@+id/editTextLogin"

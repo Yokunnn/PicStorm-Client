@@ -1,13 +1,125 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@color/picStorm_pink"
     tools:context=".FeedFragment">
 
     <TextView
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:text="feed" />
+        android:id="@+id/textView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="5dp"
+        android:layout_marginStart="10dp"
+        android:text="@string/app_name"
+        android:textAppearance="@style/Text.ClickerScript.50"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
 
-</FrameLayout>
+    <com.skydoves.powerspinner.PowerSpinnerView
+        android:id="@+id/feedSpinner"
+        android:layout_width="150dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="15dp"
+        android:background="@drawable/feed_spinner_shape"
+        android:contentDescription="@string/contentDescription"
+        android:minHeight="48dp"
+        android:paddingStart="20dp"
+        android:paddingTop="10dp"
+        android:paddingEnd="20dp"
+        android:paddingBottom="10dp"
+        android:textAppearance="@style/Text.Forum.24"
+        android:textColor="@color/black"
+        android:textColorHint="@color/black"
+        app:layout_constraintEnd_toStartOf="@+id/photoLoadCardView"
+        app:layout_constraintStart_toEndOf="@+id/textView"
+        app:layout_constraintTop_toTopOf="parent"
+        app:spinner_arrow_tint="@color/black"
+        app:spinner_popup_animation="dropdown"
+        app:spinner_popup_background="@drawable/feed_spinner_popup_shape"
+        app:spinner_popup_elevation="0dp" />
+
+    <com.skydoves.powerspinner.PowerSpinnerView
+        android:id="@+id/filterDateSpinner"
+        android:layout_width="180dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="20dp"
+        android:layout_marginTop="5dp"
+        android:background="@drawable/filter_spinner_shape"
+        android:contentDescription="@string/contentDescription"
+        android:gravity="center"
+        android:paddingTop="5dp"
+        android:paddingBottom="5dp"
+        android:textAppearance="@style/Text.Forum.14"
+        android:textColor="@color/picStorm_grey"
+        android:textColorHint="@color/black"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/textView"
+        app:spinner_arrow_show="false"
+        app:spinner_popup_animation="dropdown"
+        app:spinner_popup_background="@drawable/filter_spinner_popup_shape"
+        app:spinner_popup_elevation="0dp" />
+
+    <com.skydoves.powerspinner.PowerSpinnerView
+        android:id="@+id/filterRatingSpinner"
+        android:layout_width="180dp"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="20dp"
+        android:layout_marginTop="5dp"
+        android:background="@drawable/filter_spinner_shape"
+        android:contentDescription="@string/contentDescription"
+        android:gravity="center"
+        android:paddingTop="5dp"
+        android:paddingBottom="5dp"
+        android:textAppearance="@style/Text.Forum.14"
+        android:textColor="@color/picStorm_grey"
+        android:textColorHint="@color/black"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/textView"
+        app:spinner_arrow_show="false"
+        app:spinner_popup_animation="dropdown"
+        app:spinner_popup_background="@drawable/filter_spinner_popup_shape"
+        app:spinner_popup_elevation="0dp" />
+
+    <androidx.cardview.widget.CardView
+        android:id="@+id/photoLoadCardView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:cardBackgroundColor="@color/white"
+        app:cardCornerRadius="90dp"
+        app:cardElevation="0dp"
+        android:layout_marginTop="15dp"
+        android:layout_marginEnd="10dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+        <ImageButton
+            android:id="@+id/photoLoadBtn"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@color/transparent"
+            android:contentDescription="@string/contentDescription"
+            android:minWidth="48dp"
+            android:minHeight="48dp"
+            app:srcCompat="@drawable/ic_plus" />
+    </androidx.cardview.widget.CardView>
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/filterDateSpinner">
+    </androidx.recyclerview.widget.RecyclerView>
+
+    <com.example.picstorm.BottomNavView
+        android:id="@+id/bottomNav"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:cardBackgroundColor="@color/transparent"
+        app:cardElevation="0dp"
+        app:layout_constraintBottom_toBottomOf="parent" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

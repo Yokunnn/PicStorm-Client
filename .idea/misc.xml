@@ -6,21 +6,42 @@
         <entry key="..\:/Users/user/AndroidStudioProjects/PicStorm/app/src/main/res/drawable-v24/ic_launcher_foreground.xml" value="0.1495" />
         <entry key="..\:/Users/user/AndroidStudioProjects/PicStorm/app/src/main/res/drawable/bottom_nav_shape.xml" value="0.183" />
         <entry key="..\:/Users/user/AndroidStudioProjects/PicStorm/app/src/main/res/drawable/button_login_shape.xml" value="0.1495" />
+        <entry key="..\:/Users/user/AndroidStudioProjects/PicStorm/app/src/main/res/drawable/feed_spinner_openup_shape.xml" value="0.1395" />
+        <entry key="..\:/Users/user/AndroidStudioProjects/PicStorm/app/src/main/res/drawable/feed_spinner_popup_shape.xml" value="0.1395" />
+        <entry key="..\:/Users/user/AndroidStudioProjects/PicStorm/app/src/main/res/drawable/feed_spinner_selector.xml" value="0.153" />
+        <entry key="..\:/Users/user/AndroidStudioProjects/PicStorm/app/src/main/res/drawable/feed_spinner_shape.xml" value="0.153" />
+        <entry key="..\:/Users/user/AndroidStudioProjects/PicStorm/app/src/main/res/drawable/feed_spinner_style.xml" value="0.2155" />
+        <entry key="..\:/Users/user/AndroidStudioProjects/PicStorm/app/src/main/res/drawable/filter_spinner_openup_shape.xml" value="0.1395" />
+        <entry key="..\:/Users/user/AndroidStudioProjects/PicStorm/app/src/main/res/drawable/filter_spinner_popup_shape.xml" value="0.1395" />
+        <entry key="..\:/Users/user/AndroidStudioProjects/PicStorm/app/src/main/res/drawable/filter_spinner_shape.xml" value="0.1395" />
         <entry key="..\:/Users/user/AndroidStudioProjects/PicStorm/app/src/main/res/drawable/ic_back_arrow.xml" value="0.1495" />
+        <entry key="..\:/Users/user/AndroidStudioProjects/PicStorm/app/src/main/res/drawable/ic_baseline_keyboard_arrow_down_24.xml" value="0.169" />
+        <entry key="..\:/Users/user/AndroidStudioProjects/PicStorm/app/src/main/res/drawable/ic_baseline_keyboard_arrow_up_24.xml" value="0.153" />
         <entry key="..\:/Users/user/AndroidStudioProjects/PicStorm/app/src/main/res/drawable/ic_launcher_background.xml" value="0.1495" />
+        <entry key="..\:/Users/user/AndroidStudioProjects/PicStorm/app/src/main/res/drawable/ic_list_frame.xml" value="0.153" />
+        <entry key="..\:/Users/user/AndroidStudioProjects/PicStorm/app/src/main/res/drawable/ic_photo_load_frame.xml" value="0.153" />
+        <entry key="..\:/Users/user/AndroidStudioProjects/PicStorm/app/src/main/res/drawable/ic_plus.xml" value="0.153" />
+        <entry key="..\:/Users/user/AndroidStudioProjects/PicStorm/app/src/main/res/drawable/ic_search_frame.xml" value="0.153" />
+        <entry key="..\:/Users/user/AndroidStudioProjects/PicStorm/app/src/main/res/drawable/ic_user_frame.xml" value="0.153" />
         <entry key="..\:/Users/user/AndroidStudioProjects/PicStorm/app/src/main/res/drawable/splash_logo_shape.xml" value="0.183" />
         <entry key="..\:/Users/user/AndroidStudioProjects/PicStorm/app/src/main/res/layout/activity_login.xml" value="0.264" />
         <entry key="..\:/Users/user/AndroidStudioProjects/PicStorm/app/src/main/res/layout/activity_main.xml" value="0.25416666666666665" />
         <entry key="..\:/Users/user/AndroidStudioProjects/PicStorm/app/src/main/res/layout/activity_register.xml" value="0.264" />
         <entry key="..\:/Users/user/AndroidStudioProjects/PicStorm/app/src/main/res/layout/activity_search.xml" value="0.264" />
         <entry key="..\:/Users/user/AndroidStudioProjects/PicStorm/app/src/main/res/layout/activity_splash.xml" value="0.25416666666666665" />
+        <entry key="..\:/Users/user/AndroidStudioProjects/PicStorm/app/src/main/res/layout/bottom_nav_view.xml" value="0.264" />
+        <entry key="..\:/Users/user/AndroidStudioProjects/PicStorm/app/src/main/res/layout/feed_dropdown_item.xml" value="0.253125" />
         <entry key="..\:/Users/user/AndroidStudioProjects/PicStorm/app/src/main/res/layout/fragment_bottom_nav.xml" value="0.264" />
-        <entry key="..\:/Users/user/AndroidStudioProjects/PicStorm/app/src/main/res/layout/fragment_feed.xml" value="0.25416666666666665" />
+        <entry key="..\:/Users/user/AndroidStudioProjects/PicStorm/app/src/main/res/layout/fragment_feed.xml" value="0.2" />
         <entry key="..\:/Users/user/AndroidStudioProjects/PicStorm/app/src/main/res/layout/fragment_login.xml" value="0.264" />
         <entry key="..\:/Users/user/AndroidStudioProjects/PicStorm/app/src/main/res/layout/fragment_register.xml" value="0.24010416666666667" />
         <entry key="..\:/Users/user/AndroidStudioProjects/PicStorm/app/src/main/res/layout/fragment_search.xml" value="0.24010416666666667" />
         <entry key="..\:/Users/user/AndroidStudioProjects/PicStorm/app/src/main/res/layout/fragment_splash.xml" value="0.25416666666666665" />
         <entry key="..\:/Users/user/AndroidStudioProjects/PicStorm/app/src/main/res/layout/login_activity.xml" value="0.4" />
+        <entry key="..\:/Users/user/AndroidStudioProjects/PicStorm/app/src/main/res/mipmap-anydpi-v26/ic_launcher.xml" value="0.1395" />
+        <entry key="..\:/Users/user/AndroidStudioProjects/PicStorm/app/src/main/res/mipmap-anydpi-v26/ic_launcher_round.xml" value="0.1395" />
+        <entry key="..\:/Users/user/AppData/Local/Android/Sdk/platforms/android-33/data/res/layout/simple_spinner_dropdown_item.xml" value="0.25416666666666665" />
+        <entry key="..\:/Users/user/AppData/Local/Android/Sdk/platforms/android-33/data/res/layout/simple_spinner_item.xml" value="0.25416666666666665" />
       </map>
     </option>
   </component>
