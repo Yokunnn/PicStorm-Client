@@ -1,4 +1,4 @@
-package com.example.picstorm
+package com.example.picstorm.presentation
 
 import android.content.Context
 import android.util.AttributeSet
