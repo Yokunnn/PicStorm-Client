@@ -19,4 +19,7 @@
     <string name="byWeek">За неделю</string>
     <string name="byLikes">По лайкам</string>
     <string name="byDislikes">По дизлайкам</string>
+    <string name="ban">Заблокировать</string>
+    <string name="makeAdmin">Сделать админом</string>
+    <string name="demoteAdmin">Разжаловать админа</string>
 </resources>

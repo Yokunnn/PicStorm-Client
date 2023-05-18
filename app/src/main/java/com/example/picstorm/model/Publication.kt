@@ -1,6 +1,7 @@
 package com.example.picstorm.model
 
 import android.graphics.Bitmap
+import com.example.picstorm.model.enums.ReactionType
 import java.time.Instant
 
 data class Publication(

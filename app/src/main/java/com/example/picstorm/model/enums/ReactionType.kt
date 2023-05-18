@@ -1,4 +1,4 @@
-package com.example.picstorm.model
+package com.example.picstorm.model.enums
 
 enum class ReactionType {
     LIKE,

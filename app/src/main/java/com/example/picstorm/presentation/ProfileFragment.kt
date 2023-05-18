@@ -7,22 +7,19 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.navigation.fragment.findNavController
 import com.example.picstorm.R
-import com.example.picstorm.databinding.FragmentSearchBinding
-import com.example.picstorm.presentation.adapter.SearchAdapter
+import com.example.picstorm.databinding.FragmentProfileBinding
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
-class SearchFragment : Fragment() {
+class ProfileFragment : Fragment() {
 
-    private lateinit var binding: FragmentSearchBinding
-
-    private val searchAdapter = SearchAdapter()
+    private lateinit var binding: FragmentProfileBinding
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View {
-        binding = FragmentSearchBinding.inflate(inflater, container, false)
+    ): View? {
+        binding = FragmentProfileBinding.inflate(inflater, container, false)
         return binding.root
     }
 
@@ -31,19 +28,17 @@ class SearchFragment : Fragment() {
 
         initBottomNav()
 
-        initRecyclerView()
+        binding.subscriptionsTv.setOnClickListener {
+            findNavController().navigate(R.id.action_profileFragment_to_feedFragment)
+        }
     }
 
     fun initBottomNav(){
         binding.bottomNav.binding.imageList.setOnClickListener {
-            findNavController().navigate(R.id.action_searchFragment_to_feedFragment)
+            findNavController().navigate(R.id.action_profileFragment_to_feedFragment)
         }
-        binding.bottomNav.binding.imageUser.setOnClickListener {
-            findNavController().navigate(R.id.action_searchFragment_to_profileFragment)
+        binding.bottomNav.binding.imageSearch.setOnClickListener {
+            findNavController().navigate(R.id.action_profileFragment_to_searchFragment)
         }
-    }
-
-    fun initRecyclerView(){
-        binding.searchRv.adapter = searchAdapter
     }
 }
