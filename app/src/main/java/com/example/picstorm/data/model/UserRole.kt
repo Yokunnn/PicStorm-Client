@@ -1,6 +1,6 @@
-package com.example.picstorm.di.model
+package com.example.picstorm.data.model
 
-import com.example.picstorm.model.enums.UserRole
+import com.example.picstorm.domain.model.enums.UserRole
 import com.google.gson.annotations.SerializedName
 
 data class UserRole(

@@ -4,7 +4,7 @@ import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.example.picstorm.databinding.PublicationItemBinding
-import com.example.picstorm.model.Publication
+import com.example.picstorm.domain.model.Publication
 
 class FeedAdapter : RecyclerView.Adapter<FeedAdapter.FeedViewHolder>(){
 

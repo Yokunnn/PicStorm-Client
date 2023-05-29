@@ -5,7 +5,7 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.example.picstorm.databinding.SearchItemBinding
-import com.example.picstorm.model.UserSearched
+import com.example.picstorm.domain.model.UserSearched
 
 class SearchAdapter : RecyclerView.Adapter<SearchAdapter.SearchViewHolder>() {
 
