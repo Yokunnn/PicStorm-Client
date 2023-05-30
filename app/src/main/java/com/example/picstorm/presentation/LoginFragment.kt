@@ -32,6 +32,7 @@ class LoginFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View {
         binding = FragmentLoginBinding.inflate(inflater, container, false)
+        tokenStorage = TokenStorage(this.requireContext())
         return binding.root
     }
 
@@ -52,7 +53,6 @@ class LoginFragment : Fragment() {
                     binding.editTextPassword.text.toString()
                 )
             )
-            //findNavController().navigate(R.id.action_loginFragment_to_feedFragment)
         }
         binding.buttonReg.setOnClickListener {
             findNavController().navigate(R.id.action_loginFragment_to_registerFragment)
@@ -65,7 +65,6 @@ class LoginFragment : Fragment() {
     fun observeReqState() {
         loginViewModel.reqState.observe(viewLifecycleOwner) { requestState ->
             when (requestState) {
-                //smth
                 RequestState.LOADING -> {
                     Log.i("State", "loading")
                 }
@@ -73,9 +72,9 @@ class LoginFragment : Fragment() {
                 RequestState.ERROR -> {
                     Log.i("State", "error")
                 }
-                //nav to feed
                 RequestState.SUCCESS -> {
                     Log.i("State", "success")
+                    findNavController().navigate(R.id.action_loginFragment_to_feedFragment)
                 }
             }
         }

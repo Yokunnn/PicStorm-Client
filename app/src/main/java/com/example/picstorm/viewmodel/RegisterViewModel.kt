@@ -1,13 +1,12 @@
 package com.example.picstorm.viewmodel
 
-import android.util.Log
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.picstorm.data.repository.LoginRepositoryImpl
+import com.example.picstorm.data.repository.RegisterRepositoryImpl
 import com.example.picstorm.domain.model.Error
 import com.example.picstorm.domain.model.Token
-import com.example.picstorm.domain.model.UserLogin
+import com.example.picstorm.domain.model.UserRegister
 import com.example.picstorm.util.Request
 import com.example.picstorm.util.RequestState
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -16,8 +15,8 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
-class LoginViewModel @Inject constructor(
-    private val loginRepository: LoginRepositoryImpl
+class RegisterViewModel @Inject constructor(
+    private val registerRepository: RegisterRepositoryImpl
 ) : ViewModel() {
 
     val reqState = MutableLiveData<RequestState>()
@@ -25,17 +24,20 @@ class LoginViewModel @Inject constructor(
 
     private lateinit var error: Error
 
-    fun login(userLogin: UserLogin) {
+    fun register(userRegister: UserRegister) {
         viewModelScope.launch(Dispatchers.IO) {
-            loginRepository.login(userLogin.nickname, userLogin.password).collect { requestState ->
-                when (requestState) {
-                    is Request.Loading -> {
-                        reqState.postValue(RequestState.LOADING)
-                    }
+            registerRepository.register(
+                userRegister.nickname,
+                userRegister.password,
+                userRegister.email
+            ).collect { requestState ->
+                when(requestState){
                     is Request.Error -> {
-                        Log.e("request error", requestState.message)
                         error = Error(requestState.message)
                         reqState.postValue(RequestState.ERROR)
+                    }
+                    is Request.Loading -> {
+                        reqState.postValue(RequestState.LOADING)
                     }
                     is Request.Success -> {
                         token.postValue(

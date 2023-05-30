@@ -1,25 +1,34 @@
 package com.example.picstorm.presentation
 
-import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
+import com.auth0.android.jwt.JWT
 import com.example.picstorm.R
 import com.example.picstorm.databinding.FragmentFeedBinding
+import com.example.picstorm.domain.TokenStorage
 import com.example.picstorm.presentation.adapter.FeedAdapter
 import com.skydoves.powerspinner.PowerSpinnerView
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 @AndroidEntryPoint
 class FeedFragment : Fragment() {
 
     private lateinit var binding: FragmentFeedBinding
+    private lateinit var tokenStorage: TokenStorage
     private lateinit var feedSpinner: PowerSpinnerView
     private lateinit var filterDateSpinner: PowerSpinnerView
     private lateinit var filterRatingSpinner: PowerSpinnerView
+    private lateinit var jwta: JWT
 
     private val feedAdapter = FeedAdapter()
 
@@ -28,6 +37,8 @@ class FeedFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View {
         binding = FragmentFeedBinding.inflate(inflater, container, false)
+        tokenStorage = TokenStorage(this.requireContext())
+
         feedSpinner = binding.feedSpinner
         filterDateSpinner = binding.filterDateSpinner
         filterRatingSpinner = binding.filterRatingSpinner
@@ -36,13 +47,30 @@ class FeedFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        initPhotoLoadBtn()
 
-        initBottomNav()
+        tokenStorage.token.observe(viewLifecycleOwner){ token ->
+            if (token.accessToken!="null"){
+                jwta = JWT(token.accessToken)
+                val authorities = jwta.getClaim("authorities").asList(String::class.java)
+                if(authorities.contains("UPLOAD_AUTHORITY")){
+                    initPhotoLoadBtnAuthorized()
+                    initBottomNavAuthorized()
+                    initFeedSpinner()
+                } else {
+                    initPhotoLoadBtn()
+                    initBottomNav()
+                }
+                Log.i("Access", jwta.getClaim("authorities").asList(String::class.java).toString())
+                Log.i("Access", jwta.subject.toString())
+                Log.i("Access", jwta.expiresAt.toString())
+            } else {
+                initPhotoLoadBtn()
+                initBottomNav()
+            }
+        }
 
         initRecyclerView()
 
-        initFeedSpinner()
         initFilterDateSpinner()
         initFilterRatingSpinner()
     }
@@ -53,8 +81,13 @@ class FeedFragment : Fragment() {
 
     fun initPhotoLoadBtn(){
         binding.photoLoadBtn.setOnClickListener {
-            
             findNavController().navigate(R.id.action_feedFragment_to_loginFragment)
+        }
+    }
+
+    fun initPhotoLoadBtnAuthorized(){
+        binding.photoLoadBtn.setOnClickListener {
+            //upload event
         }
     }
 
@@ -67,8 +100,18 @@ class FeedFragment : Fragment() {
         }
     }
 
+    fun initBottomNavAuthorized(){
+        binding.bottomNav.binding.imageSearch.setOnClickListener {
+            findNavController().navigate(R.id.action_feedFragment_to_searchFragment)
+        }
+        binding.bottomNav.binding.imageUser.setOnClickListener {
+            findNavController().navigate(R.id.action_feedFragment_to_profileFragment)
+        }
+    }
+
     fun initFeedSpinner() {
         with(feedSpinner){
+            visibility = View.VISIBLE
             setItems(R.array.feedSpinnerPersonal)
             setHint(R.string.global)
             setOnClickListener {
