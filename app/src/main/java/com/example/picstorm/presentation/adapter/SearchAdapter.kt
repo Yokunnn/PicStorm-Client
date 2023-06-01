@@ -9,7 +9,8 @@ import com.example.picstorm.domain.model.UserSearched
 
 class SearchAdapter : RecyclerView.Adapter<SearchAdapter.SearchViewHolder>() {
 
-    private var items: List<UserSearched> = emptyList()
+    private var items: MutableList<UserSearched> = emptyList<UserSearched>().toMutableList()
+    var isLoading: Boolean = false
 
     inner class SearchViewHolder(
         binding: SearchItemBinding
@@ -31,7 +32,7 @@ class SearchAdapter : RecyclerView.Adapter<SearchAdapter.SearchViewHolder>() {
     override fun onBindViewHolder(holder: SearchViewHolder, position: Int) {
         val data = items[position]
 
-        with(holder){
+        with(holder) {
             imageView.setImageBitmap(data.avatar)
 
             nameButton.text = data.nickname
@@ -39,12 +40,12 @@ class SearchAdapter : RecyclerView.Adapter<SearchAdapter.SearchViewHolder>() {
                 //nav action
             }
 
-            if (data.subscribed){
+            if (data.subscribed == true) {
                 unsubButton.visibility = View.VISIBLE
                 unsubButton.setOnClickListener {
                     //unsub action
                 }
-            } else {
+            } else if (data.subscribed == false){
                 subButton.visibility = View.VISIBLE
                 subButton.setOnClickListener {
                     //sub action
@@ -56,7 +57,14 @@ class SearchAdapter : RecyclerView.Adapter<SearchAdapter.SearchViewHolder>() {
     override fun getItemCount(): Int = items.size
 
     fun update(data: List<UserSearched>) {
-        items = data
+        //items.addAll(data)
+        items = data.toMutableList()
+        notifyDataSetChanged()
+    }
+
+    fun renew(data: List<UserSearched>){
+        items.clear()
+        items.addAll(data)
         notifyDataSetChanged()
     }
 }
