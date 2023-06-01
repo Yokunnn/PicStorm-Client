@@ -87,6 +87,11 @@ dependencies {
 
     //PowerSpinner for easier customize
     implementation "com.github.skydoves:powerspinner:1.2.6"
+
+    //PhotoCompressor
+    implementation 'id.zelory:compressor:3.0.1'
+
+    implementation "commons-io:commons-io:2.7"
 }
 
 kapt {

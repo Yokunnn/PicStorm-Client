@@ -11,7 +11,7 @@ fun SearchResponse.mapToDomain(): List<UserSearched> {
     for (u in this.values) {
         var bitmap: Bitmap? = null
         u.avatar?.let {
-            val byteData: ByteArray = Base64.decode(u.avatar.data, Base64.DEFAULT)
+            val byteData: ByteArray = Base64.decode(u.avatar, Base64.DEFAULT)
             bitmap = BitmapFactory.decodeByteArray(
                 byteData,
                 0,

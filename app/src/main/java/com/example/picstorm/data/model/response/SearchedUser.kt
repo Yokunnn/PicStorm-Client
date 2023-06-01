@@ -6,7 +6,7 @@ data class SearchedUser(
     @SerializedName("userId")
     val id: Long,
     @SerializedName("avatar")
-    val avatar: Avatar,
+    val avatar: String?,
     @SerializedName("nickname")
     val name: String,
     @SerializedName("subscribed")
