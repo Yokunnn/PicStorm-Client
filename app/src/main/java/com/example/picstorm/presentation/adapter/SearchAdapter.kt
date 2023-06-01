@@ -57,14 +57,7 @@ class SearchAdapter : RecyclerView.Adapter<SearchAdapter.SearchViewHolder>() {
     override fun getItemCount(): Int = items.size
 
     fun update(data: List<UserSearched>) {
-        //items.addAll(data)
         items = data.toMutableList()
-        notifyDataSetChanged()
-    }
-
-    fun renew(data: List<UserSearched>){
-        items.clear()
-        items.addAll(data)
         notifyDataSetChanged()
     }
 }

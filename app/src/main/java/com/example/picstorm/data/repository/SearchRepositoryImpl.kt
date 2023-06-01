@@ -17,9 +17,7 @@ class SearchRepositoryImpl @Inject constructor(
     override suspend fun search(name: String, index: Int, size: Int): Flow<Request<List<UserSearched>>> {
         return requestFlow {
             val searchResponse = searchService.search(name, index, size)
-            Log.e("resp", searchResponse.toString())
             val list = searchResponse.mapToDomain()
-            Log.e("list", list.toString())
             list
         }
     }
