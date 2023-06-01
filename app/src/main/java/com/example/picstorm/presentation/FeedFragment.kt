@@ -6,6 +6,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import com.auth0.android.jwt.JWT
 import com.example.picstorm.R
@@ -14,6 +15,8 @@ import com.example.picstorm.domain.TokenStorage
 import com.example.picstorm.presentation.adapter.FeedAdapter
 import com.skydoves.powerspinner.PowerSpinnerView
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
 class FeedFragment : Fragment() {
@@ -23,7 +26,6 @@ class FeedFragment : Fragment() {
     private lateinit var feedSpinner: PowerSpinnerView
     private lateinit var filterDateSpinner: PowerSpinnerView
     private lateinit var filterRatingSpinner: PowerSpinnerView
-    private lateinit var jwta: JWT
 
     private val feedAdapter = FeedAdapter()
 
@@ -43,26 +45,7 @@ class FeedFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        tokenStorage.token.observe(viewLifecycleOwner){ token ->
-            if (token.accessToken!="null"){
-                jwta = JWT(token.accessToken)
-                val authorities = jwta.getClaim("authorities").asList(String::class.java)
-                if(authorities.contains("UPLOAD_AUTHORITY")){
-                    initPhotoLoadBtnAuthorized()
-                    initBottomNavAuthorized()
-                    initFeedSpinner()
-                } else {
-                    initPhotoLoadBtn()
-                    initBottomNav()
-                }
-                Log.i("Access", jwta.getClaim("authorities").asList(String::class.java).toString())
-                Log.i("Access", jwta.subject.toString())
-                Log.i("Access", jwta.expiresAt.toString())
-            } else {
-                initPhotoLoadBtn()
-                initBottomNav()
-            }
-        }
+        observeToken()
 
         initRecyclerView()
 
@@ -70,23 +53,55 @@ class FeedFragment : Fragment() {
         initFilterRatingSpinner()
     }
 
+    private fun observeToken() {
+        tokenStorage.token.observe(viewLifecycleOwner) { token ->
+            if (token.accessToken != "null") {
+                val jwta = JWT(token.accessToken)
+                if (jwta.isExpired(0)) {
+                    lifecycleScope.launch(Dispatchers.IO) {
+                        tokenStorage.deleteToken()
+                    }
+                } else {
+                    val authorities = jwta.getClaim("authorities").asList(String::class.java)
+                    if (authorities.contains("UPLOAD_AUTHORITY")) {
+                        initPhotoLoadBtnAuthorized()
+                        initBottomNavAuthorized()
+                        initFeedSpinner()
+                    } else {
+                        initPhotoLoadBtn()
+                        initBottomNav()
+                    }
+                    Log.i(
+                        "Access",
+                        jwta.getClaim("authorities").asList(String::class.java).toString()
+                    )
+                    Log.i("Access", jwta.subject.toString())
+                    Log.i("Access", jwta.expiresAt.toString())
+                }
+            } else {
+                initPhotoLoadBtn()
+                initBottomNav()
+            }
+        }
+    }
+
     fun initRecyclerView() {
         binding.feedRv.adapter = feedAdapter
     }
 
-    fun initPhotoLoadBtn(){
+    fun initPhotoLoadBtn() {
         binding.photoLoadBtn.setOnClickListener {
             findNavController().navigate(R.id.action_feedFragment_to_loginFragment)
         }
     }
 
-    fun initPhotoLoadBtnAuthorized(){
+    fun initPhotoLoadBtnAuthorized() {
         binding.photoLoadBtn.setOnClickListener {
             //upload event
         }
     }
 
-    fun initBottomNav(){
+    fun initBottomNav() {
         binding.bottomNav.binding.imageSearch.setOnClickListener {
             findNavController().navigate(R.id.action_feedFragment_to_searchFragment)
         }
@@ -95,7 +110,7 @@ class FeedFragment : Fragment() {
         }
     }
 
-    fun initBottomNavAuthorized(){
+    fun initBottomNavAuthorized() {
         binding.bottomNav.binding.imageSearch.setOnClickListener {
             findNavController().navigate(R.id.action_feedFragment_to_searchFragment)
         }
@@ -105,7 +120,7 @@ class FeedFragment : Fragment() {
     }
 
     fun initFeedSpinner() {
-        with(feedSpinner){
+        with(feedSpinner) {
             visibility = View.VISIBLE
             setItems(R.array.feedSpinnerPersonal)
             setHint(R.string.global)
@@ -128,11 +143,11 @@ class FeedFragment : Fragment() {
         }
     }
 
-    fun initFilterDateSpinner(){
-        with(filterDateSpinner){
+    fun initFilterDateSpinner() {
+        with(filterDateSpinner) {
             setItems(R.array.filterDateSpinner)
             setHint(R.string.dateFilter)
-            setOnClickListener{
+            setOnClickListener {
                 setBackgroundResource(R.drawable.filter_spinner_openup_shape)
                 showOrDismiss()
             }
@@ -145,11 +160,11 @@ class FeedFragment : Fragment() {
         }
     }
 
-    fun initFilterRatingSpinner(){
-        with(filterRatingSpinner){
+    fun initFilterRatingSpinner() {
+        with(filterRatingSpinner) {
             setItems(R.array.filterRatingSpinner)
             setHint(R.string.ratingFilter)
-            setOnClickListener{
+            setOnClickListener {
                 setBackgroundResource(R.drawable.filter_spinner_openup_shape)
                 showOrDismiss()
             }

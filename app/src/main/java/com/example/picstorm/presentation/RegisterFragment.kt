@@ -99,7 +99,6 @@ class RegisterFragment : Fragment() {
                     tokenStorage.saveToken(token)
                     Log.i("Token", "saved")
                     Log.i("Token access", token.accessToken)
-                    Log.i("Token refresh", token.refreshToken)
                 }
             }
         }

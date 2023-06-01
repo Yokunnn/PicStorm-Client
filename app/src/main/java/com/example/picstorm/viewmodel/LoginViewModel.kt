@@ -40,8 +40,7 @@ class LoginViewModel @Inject constructor(
                     is Request.Success -> {
                         token.postValue(
                             Token(
-                                requestState.data.accessToken,
-                                requestState.data.refreshToken
+                                requestState.data.accessToken
                             )
                         )
                         reqState.postValue(RequestState.SUCCESS)

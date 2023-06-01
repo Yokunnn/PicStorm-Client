@@ -7,27 +7,32 @@ import android.view.ViewGroup
 import androidx.core.widget.addTextChangedListener
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.auth0.android.jwt.JWT
 import com.example.picstorm.R
 import com.example.picstorm.databinding.FragmentSearchBinding
 import com.example.picstorm.domain.TokenStorage
-import com.example.picstorm.presentation.adapter.SearchAdapter
+import com.example.picstorm.presentation.adapter.UserLineAdapter
+import com.example.picstorm.viewmodel.UserLineViewModel
 import com.example.picstorm.viewmodel.SearchViewModel
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
 class SearchFragment : Fragment() {
 
     private lateinit var binding: FragmentSearchBinding
     private val searchViewModel: SearchViewModel by viewModels()
+    private val userLineViewModel: UserLineViewModel by viewModels()
     private lateinit var tokenStorage: TokenStorage
     private val pageSize: Int = 20
     private var lastPage = 0
     private var accessToken: String? = null
-
-    private val searchAdapter = SearchAdapter()
+    private lateinit var searchAdapter: UserLineAdapter
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -35,6 +40,7 @@ class SearchFragment : Fragment() {
     ): View {
         binding = FragmentSearchBinding.inflate(inflater, container, false)
         tokenStorage = TokenStorage(this.requireContext())
+        searchAdapter = UserLineAdapter(userLineViewModel, viewLifecycleOwner, tokenStorage)
         return binding.root
     }
 
@@ -53,7 +59,12 @@ class SearchFragment : Fragment() {
     fun addTextListener() {
         binding.editTextSearch.addTextChangedListener {
             lastPage = 0
-            searchViewModel.search(accessToken, binding.editTextSearch.text.toString(), lastPage, pageSize)
+            searchViewModel.search(
+                accessToken,
+                binding.editTextSearch.text.toString(),
+                lastPage,
+                pageSize
+            )
         }
     }
 
@@ -93,12 +104,21 @@ class SearchFragment : Fragment() {
         })
     }
 
-    fun observeToken(){
-        tokenStorage.token.observe(viewLifecycleOwner){ token ->
-            if (token.accessToken!="null"){
-                accessToken = token.accessToken
+    fun observeToken() {
+        tokenStorage.token.observe(viewLifecycleOwner) { token ->
+            if (token.accessToken != "null") {
+                var jwt = JWT(token.accessToken)
+                if (jwt.isExpired(0)) {
+                    lifecycleScope.launch(Dispatchers.IO) {
+                        tokenStorage.deleteToken()
+                    }
+                } else {
+                    accessToken = token.accessToken
+                }
+            } else {
+                accessToken = null
             }
-            searchViewModel.search(accessToken,"", lastPage, pageSize)
+            searchViewModel.search(accessToken, "", lastPage, pageSize)
         }
     }
 

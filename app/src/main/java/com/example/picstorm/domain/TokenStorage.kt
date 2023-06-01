@@ -19,14 +19,12 @@ class TokenStorage @Inject constructor(
 
     companion object {
         private val ACCESS_TOKEN_KEY = stringPreferencesKey("access_token")
-        private val REFRESH_TOKEN_KEY = stringPreferencesKey("refresh_token")
     }
 
     private fun getToken(): Flow<Token> {
         return context.dataStore.data.map { preferences ->
             Token(
-                preferences[ACCESS_TOKEN_KEY].toString(),
-                preferences[REFRESH_TOKEN_KEY].toString()
+                preferences[ACCESS_TOKEN_KEY].toString()
             )
         }
     }
@@ -34,14 +32,12 @@ class TokenStorage @Inject constructor(
     suspend fun saveToken(token: Token) {
         context.dataStore.edit { preferences ->
             preferences[ACCESS_TOKEN_KEY] = token.accessToken
-            preferences[REFRESH_TOKEN_KEY] = token.refreshToken
         }
     }
 
-    suspend fun deleteToken(){
+    suspend fun deleteToken() {
         context.dataStore.edit { preferences ->
             preferences.remove(ACCESS_TOKEN_KEY)
-            preferences.remove(REFRESH_TOKEN_KEY)
         }
     }
 }

@@ -4,7 +4,7 @@ import com.google.gson.annotations.SerializedName
 
 data class SearchedUser(
     @SerializedName("userId")
-    val id: Int,
+    val id: Long,
     @SerializedName("avatar")
     val avatar: Avatar,
     @SerializedName("nickname")
