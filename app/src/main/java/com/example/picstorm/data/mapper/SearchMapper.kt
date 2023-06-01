@@ -2,6 +2,7 @@ package com.example.picstorm.data.mapper
 
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
+import android.util.Base64
 import com.example.picstorm.data.model.response.SearchResponse
 import com.example.picstorm.domain.model.UserSearched
 
@@ -10,10 +11,11 @@ fun SearchResponse.mapToDomain(): List<UserSearched> {
     for (u in this.values) {
         var bitmap: Bitmap? = null
         u.avatar?.let {
+            val byteData: ByteArray = Base64.decode(u.avatar.data, Base64.DEFAULT)
             bitmap = BitmapFactory.decodeByteArray(
-                u.avatar.data.toByteArray(),
+                byteData,
                 0,
-                u.avatar.data.toByteArray().size
+                byteData.size
             )
         }
         var sub: Boolean? = null

@@ -5,5 +5,5 @@ import com.example.picstorm.util.Request
 import kotlinx.coroutines.flow.Flow
 
 interface SearchRepository {
-    suspend fun search(name: String, index: Int, size: Int): Flow<Request<List<UserSearched>>>
+    suspend fun search(token: String?, name: String, index: Int, size: Int): Flow<Request<List<UserSearched>>>
 }

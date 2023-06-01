@@ -22,9 +22,9 @@ class SearchViewModel @Inject constructor(
     val items = MutableLiveData<MutableList<UserSearched>>()
     var temp: MutableList<UserSearched> = emptyList<UserSearched>().toMutableList()
 
-    fun search(name: String, index: Int, size: Int) {
+    fun search(token: String?, name: String, index: Int, size: Int) {
         viewModelScope.launch(Dispatchers.IO) {
-            searchRepository.search(name, index, size).collect { requestState ->
+            searchRepository.search(token, name, index, size).collect { requestState ->
                 when (requestState) {
                     is Request.Error -> {
                         Log.e("Error", requestState.message)

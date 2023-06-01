@@ -1,32 +1,31 @@
 package com.example.picstorm.presentation
 
 import android.os.Bundle
-import android.os.Handler
-import android.os.Looper
-import android.util.Log
-import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.core.widget.addTextChangedListener
+import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.picstorm.R
 import com.example.picstorm.databinding.FragmentSearchBinding
+import com.example.picstorm.domain.TokenStorage
 import com.example.picstorm.presentation.adapter.SearchAdapter
 import com.example.picstorm.viewmodel.SearchViewModel
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.delay
 
 @AndroidEntryPoint
 class SearchFragment : Fragment() {
 
     private lateinit var binding: FragmentSearchBinding
     private val searchViewModel: SearchViewModel by viewModels()
+    private lateinit var tokenStorage: TokenStorage
     private val pageSize: Int = 20
-    var lastPage = 0
+    private var lastPage = 0
+    private var accessToken: String? = null
 
     private val searchAdapter = SearchAdapter()
 
@@ -35,6 +34,7 @@ class SearchFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View {
         binding = FragmentSearchBinding.inflate(inflater, container, false)
+        tokenStorage = TokenStorage(this.requireContext())
         return binding.root
     }
 
@@ -43,15 +43,17 @@ class SearchFragment : Fragment() {
 
         initBottomNav()
         addTextListener()
-        initRecyclerView()
 
+        observeToken()
+
+        initRecyclerView()
         observeSearchItems()
     }
 
     fun addTextListener() {
         binding.editTextSearch.addTextChangedListener {
             lastPage = 0
-            searchViewModel.search(binding.editTextSearch.text.toString(), lastPage, pageSize)
+            searchViewModel.search(accessToken, binding.editTextSearch.text.toString(), lastPage, pageSize)
         }
     }
 
@@ -65,7 +67,6 @@ class SearchFragment : Fragment() {
     }
 
     fun initRecyclerView() {
-        searchViewModel.search("", lastPage, pageSize)
         binding.searchRv.layoutManager =
             LinearLayoutManager(this.requireContext(), LinearLayoutManager.VERTICAL, false)
         binding.searchRv.adapter = searchAdapter
@@ -80,6 +81,7 @@ class SearchFragment : Fragment() {
                 if (!searchAdapter.isLoading && itemsCount == lastVisibleItem + 1 && itemsCount / pageSize == lastPage + 1) {
                     searchAdapter.isLoading = true
                     searchViewModel.search(
+                        accessToken,
                         binding.editTextSearch.text.toString(),
                         itemsCount / pageSize,
                         pageSize
@@ -89,6 +91,15 @@ class SearchFragment : Fragment() {
                 }
             }
         })
+    }
+
+    fun observeToken(){
+        tokenStorage.token.observe(viewLifecycleOwner){ token ->
+            if (token.accessToken!="null"){
+                accessToken = token.accessToken
+            }
+            searchViewModel.search(accessToken,"", lastPage, pageSize)
+        }
     }
 
     fun observeSearchItems() {
