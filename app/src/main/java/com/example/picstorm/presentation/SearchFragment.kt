@@ -48,7 +48,6 @@ class SearchFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        initBottomNav()
         addTextListener()
 
         observeToken()
@@ -70,6 +69,14 @@ class SearchFragment : Fragment() {
     }
 
     fun initBottomNav() {
+        binding.bottomNav.binding.imageList.setOnClickListener {
+            findNavController().navigate(R.id.action_searchFragment_to_feedFragment)
+        }
+        binding.bottomNav.binding.imageUser.setOnClickListener {
+            findNavController().navigate(R.id.action_searchFragment_to_loginFragment)
+        }
+    }
+    fun initBottomNavAuthorized() {
         binding.bottomNav.binding.imageList.setOnClickListener {
             findNavController().navigate(R.id.action_searchFragment_to_feedFragment)
         }
@@ -114,9 +121,11 @@ class SearchFragment : Fragment() {
                         tokenStorage.deleteToken()
                     }
                 } else {
+                    initBottomNavAuthorized()
                     accessToken = token.accessToken
                 }
             } else {
+                initBottomNav()
                 accessToken = null
             }
             searchViewModel.search(accessToken, "", lastPage, pageSize)
