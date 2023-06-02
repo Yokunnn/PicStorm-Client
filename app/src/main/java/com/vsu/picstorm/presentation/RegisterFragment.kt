@@ -1,5 +1,7 @@
 package com.vsu.picstorm.presentation
 
+import android.app.AlertDialog
+import android.app.ProgressDialog.show
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
@@ -55,7 +57,7 @@ class RegisterFragment : Fragment() {
                     )
                 )
             } else {
-                //show dialogfragment
+                findNavController().navigate(R.id.action_registerFragment_to_confirmDialogFragment)
             }
         }
         binding.buttonLogin.setOnClickListener {

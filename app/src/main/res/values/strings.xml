@@ -27,4 +27,6 @@
     <string name="subscribers_title_label">Подписчики</string>
     <string name="subscriptions_title_label">Подписки</string>
     <string name="default_name_label">...</string>
+    <string name="actionNo">Нет</string>
+    <string name="actionYes">Да</string>
 </resources>
