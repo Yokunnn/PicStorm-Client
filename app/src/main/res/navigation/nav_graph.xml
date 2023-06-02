@@ -87,6 +87,9 @@
         <action
             android:id="@+id/action_profileFragment_to_loginFragment"
             app:destination="@id/loginFragment" />
+        <argument
+            android:name="id"
+            app:argType="long" />
     </fragment>
     <fragment
         android:id="@+id/subFragment"

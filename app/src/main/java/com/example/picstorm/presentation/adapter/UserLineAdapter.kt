@@ -95,9 +95,9 @@ class UserLineAdapter constructor(
 
     fun observeSubRes(){
         userLineViewModel.subResult.observe(lifecycleOwner) { result ->
+            val holder: SearchViewHolder = viewHolders[result.first]!!
             when (result.second.status) {
                 ApiStatus.SUCCESS ->  {
-                    val holder: SearchViewHolder = viewHolders[result.first]!!
                     with(holder) {
                         if (subButton.visibility == View.VISIBLE) {
                             subButton.visibility = View.GONE
@@ -106,11 +106,17 @@ class UserLineAdapter constructor(
                             unsubButton.visibility = View.GONE
                             subButton.visibility = View.VISIBLE
                         }
+                        unsubButton.isClickable = true
+                        subButton.isClickable = true
                     }
                 }
                 ApiStatus.ERROR ->   {
                 }
                 ApiStatus.LOADING ->  {
+                    with(holder) {
+                        unsubButton.isClickable = false
+                        subButton.isClickable = false
+                    }
                 }
             }
         }

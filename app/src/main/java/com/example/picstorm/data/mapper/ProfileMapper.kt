@@ -5,6 +5,7 @@ import android.graphics.BitmapFactory
 import android.util.Base64
 import com.example.picstorm.data.model.response.ProfileResponse
 import com.example.picstorm.domain.model.Profile
+import com.example.picstorm.domain.model.enums.UserRole
 
 fun ProfileResponse.mapToDomain(): Profile {
     var bitmap: Bitmap? = null
@@ -21,6 +22,6 @@ fun ProfileResponse.mapToDomain(): Profile {
         sub = subscribed
     }
     return Profile(
-        userId, bitmap, name, role, sub, subscriptions, subscribers
+        userId, bitmap, name, UserRole.valueOf(role), sub, subscriptions, subscribers
     )
 }

@@ -32,17 +32,20 @@
                 android:id="@+id/imageView"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
+                android:adjustViewBounds="true"
+                android:scaleType="centerCrop"
                 android:background="@color/transparent"
                 tools:src="@drawable/img"/>
         </androidx.cardview.widget.CardView>
 
         <androidx.appcompat.widget.AppCompatButton
             android:id="@+id/nameButton"
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:background="@color/transparent"
             android:gravity="left|center"
-            android:paddingStart="10dp"
+            android:paddingStart="50dp"
+            android:layout_marginEnd="40dp"
             tools:text="Name"
             android:textAppearance="@style/Text.Forum.20"
             app:layout_constraintBottom_toBottomOf="parent"

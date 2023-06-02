@@ -22,4 +22,7 @@
     <string name="ban">Заблокировать</string>
     <string name="makeAdmin">Сделать админом</string>
     <string name="demoteAdmin">Разжаловать админа</string>
+    <string name="subscribers_label">Подписчики: </string>
+    <string name="subscriptions_label">Подписки: </string>
+    <string name="default_name_label">...</string>
 </resources>

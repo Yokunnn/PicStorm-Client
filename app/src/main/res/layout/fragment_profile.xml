@@ -24,6 +24,8 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:background="@color/transparent"
+            android:adjustViewBounds="true"
+            android:scaleType="centerCrop"
             tools:src="@drawable/img" />
 
     </androidx.cardview.widget.CardView>
@@ -45,13 +47,13 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:paddingStart="20dp"
-            android:paddingEnd="20dp">
+            android:paddingEnd="15dp">
 
             <TextView
                 android:id="@+id/nicknameTv"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="test"
+                android:text="@string/default_name_label"
                 android:textAppearance="@style/Text.Forum.24"
                 app:layout_constraintBottom_toTopOf="@+id/subscriptionsTv"
                 app:layout_constraintStart_toStartOf="parent"
@@ -62,7 +64,7 @@
                 android:id="@+id/subscriptionsTv"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="test"
+                android:text="@string/subscriptions_label"
                 android:textAppearance="@style/Text.Forum.16"
                 android:textColor="@color/picStorm_grey"
                 app:layout_constraintBottom_toTopOf="@id/subscribersTv"
@@ -74,7 +76,7 @@
                 android:id="@+id/subscribersTv"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="test"
+                android:text="@string/subscribers_label"
                 android:textAppearance="@style/Text.Forum.16"
                 android:textColor="@color/picStorm_grey"
                 app:layout_constraintBottom_toBottomOf="parent"
@@ -90,6 +92,7 @@
                 android:visibility="gone"
                 android:minWidth="48dp"
                 android:minHeight="48dp"
+                android:layout_marginEnd="3dp"
                 app:layout_constraintBottom_toTopOf="@+id/photoLoadBtn"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
@@ -138,8 +141,10 @@
 
     <androidx.appcompat.widget.AppCompatButton
         android:id="@+id/banBtn"
-        android:layout_width="380dp"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_marginStart="10dp"
+        android:layout_marginEnd="10dp"
         android:layout_marginTop="154dp"
         android:background="@drawable/button_profile_shape"
         android:textAllCaps="false"
@@ -147,12 +152,15 @@
         android:text="@string/ban"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toTopOf="parent"
+        android:visibility="gone"/>
 
     <androidx.appcompat.widget.AppCompatButton
         android:id="@+id/adminBtn"
-        android:layout_width="380dp"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_marginStart="10dp"
+        android:layout_marginEnd="10dp"
         android:layout_marginTop="124dp"
         android:background="@drawable/button_profile_shape"
         android:text="@string/makeAdmin"
@@ -160,12 +168,16 @@
         android:textAppearance="@style/Text.Forum.14.Violet"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toTopOf="parent"
+        android:visibility="gone"/>
 
     <androidx.cardview.widget.CardView
-        android:layout_width="390dp"
+        android:id="@+id/cardView"
+        android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_marginTop="65dp"
+        android:layout_marginTop="20dp"
+        android:layout_marginStart="10dp"
+        android:layout_marginEnd="10dp"
         android:layout_marginBottom="5dp"
         app:cardBackgroundColor="@color/white"
         app:cardCornerRadius="10dp"
@@ -178,7 +190,7 @@
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/photoRv"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"/>
+            android:layout_height="match_parent" />
     </androidx.cardview.widget.CardView>
     
     <com.example.picstorm.presentation.BottomNavView

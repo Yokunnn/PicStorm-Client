@@ -3,7 +3,6 @@ package com.example.picstorm.presentation
 import android.app.Activity
 import android.content.Intent
 import android.graphics.Bitmap
-import android.graphics.BitmapFactory
 import android.graphics.ImageDecoder
 import android.net.Uri
 import android.os.Build
@@ -26,13 +25,8 @@ import com.example.picstorm.presentation.adapter.FeedAdapter
 import com.example.picstorm.viewmodel.FeedViewModel
 import com.skydoves.powerspinner.PowerSpinnerView
 import dagger.hilt.android.AndroidEntryPoint
-import id.zelory.compressor.Compressor
-import id.zelory.compressor.constraint.format
-import id.zelory.compressor.constraint.size
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import java.io.ByteArrayOutputStream
-import java.io.File
 
 @AndroidEntryPoint
 class FeedFragment : Fragment() {

@@ -21,7 +21,7 @@ class RegisterViewModel @Inject constructor(
 
     fun register(userRegister: UserRegister) {
         viewModelScope.launch(Dispatchers.IO) {
-            registerRepository.register(userRegister.nickname, userRegister.email, userRegister.password).collect { result ->
+            registerRepository.register(userRegister.nickname, userRegister.password, userRegister.email).collect { result ->
                 registerResult.postValue(result)
             }
         }

@@ -4,5 +4,6 @@ enum class UserRole {
     ADMIN,
     BANNED,
     ORDINARY,
-    SUPER_ADMIN
+    SUPER_ADMIN,
+    UNAUTHORIZED
 }
