@@ -41,7 +41,7 @@ class SearchFragment : Fragment() {
     ): View {
         binding = FragmentSearchBinding.inflate(inflater, container, false)
         tokenStorage = TokenStorage(this.requireContext())
-        searchAdapter = UserLineAdapter(userLineViewModel, viewLifecycleOwner, tokenStorage)
+        searchAdapter = UserLineAdapter(userLineViewModel, viewLifecycleOwner, tokenStorage, findNavController())
         return binding.root
     }
 

@@ -1,6 +1,7 @@
 package com.example.picstorm.presentation
 
 import android.os.Bundle
+import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
@@ -20,6 +21,7 @@ class ProfileFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View? {
         binding = FragmentProfileBinding.inflate(inflater, container, false)
+        savedInstanceState?.getString("id")?.let { Log.i("Bundle", it) }
         return binding.root
     }
 

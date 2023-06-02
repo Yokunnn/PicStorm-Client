@@ -1,10 +1,13 @@
 package com.example.picstorm.presentation.adapter
 
+import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.lifecycle.LifecycleOwner
+import androidx.navigation.NavController
 import androidx.recyclerview.widget.RecyclerView
+import com.example.picstorm.R
 import com.example.picstorm.databinding.SearchItemBinding
 import com.example.picstorm.domain.TokenStorage
 import com.example.picstorm.domain.model.UserSearched
@@ -14,7 +17,8 @@ import com.example.picstorm.viewmodel.UserLineViewModel
 class UserLineAdapter constructor(
     private val userLineViewModel: UserLineViewModel,
     private val lifecycleOwner: LifecycleOwner,
-    private val tokenStorage: TokenStorage
+    private val tokenStorage: TokenStorage,
+    private val navController: NavController
 ) : RecyclerView.Adapter<UserLineAdapter.SearchViewHolder>() {
 
     private var items: MutableList<UserSearched> = emptyList<UserSearched>().toMutableList()
@@ -25,26 +29,7 @@ class UserLineAdapter constructor(
 
     init {
         observeToken()
-        userLineViewModel.subResult.observe(lifecycleOwner) { result ->
-            when (result.second.status) {
-                ApiStatus.SUCCESS ->  {
-                    val holder: SearchViewHolder = viewHolders[result.first]!!
-                    with(holder) {
-                        if (subButton.visibility == View.VISIBLE) {
-                            subButton.visibility = View.GONE
-                            unsubButton.visibility = View.VISIBLE
-                        } else if (unsubButton.visibility == View.VISIBLE) {
-                            unsubButton.visibility = View.GONE
-                            subButton.visibility = View.VISIBLE
-                        }
-                    }
-                }
-                ApiStatus.ERROR ->   {
-                }
-                ApiStatus.LOADING ->  {
-                }
-            }
-        }
+        observeSubRes()
     }
 
     inner class SearchViewHolder(
@@ -72,7 +57,9 @@ class UserLineAdapter constructor(
 
             nameButton.text = data.nickname
             nameButton.setOnClickListener {
-                //nav action
+                val bundle = Bundle()
+                bundle.putLong("id", data.id)
+                navController.navigate(R.id.profileFragment, bundle)
             }
 
             unsubButton.setOnClickListener {
@@ -102,6 +89,29 @@ class UserLineAdapter constructor(
                 token.accessToken
             } else {
                 null
+            }
+        }
+    }
+
+    fun observeSubRes(){
+        userLineViewModel.subResult.observe(lifecycleOwner) { result ->
+            when (result.second.status) {
+                ApiStatus.SUCCESS ->  {
+                    val holder: SearchViewHolder = viewHolders[result.first]!!
+                    with(holder) {
+                        if (subButton.visibility == View.VISIBLE) {
+                            subButton.visibility = View.GONE
+                            unsubButton.visibility = View.VISIBLE
+                        } else if (unsubButton.visibility == View.VISIBLE) {
+                            unsubButton.visibility = View.GONE
+                            subButton.visibility = View.VISIBLE
+                        }
+                    }
+                }
+                ApiStatus.ERROR ->   {
+                }
+                ApiStatus.LOADING ->  {
+                }
             }
         }
     }
