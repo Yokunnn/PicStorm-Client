@@ -107,6 +107,7 @@ class SubFragment : Fragment() {
         }
     }
     fun initRecyclerView() {
+        binding.searchRv.setItemViewCacheSize(pageSize)
         binding.searchRv.layoutManager =
             LinearLayoutManager(this.requireContext(), LinearLayoutManager.VERTICAL, false)
         binding.searchRv.adapter = usersAdapter

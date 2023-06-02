@@ -1,5 +1,6 @@
 package com.vsu.picstorm.data.repository
 
+import android.graphics.Bitmap
 import com.vsu.picstorm.data.mapper.mapToDomain
 import com.vsu.picstorm.data.service.ProfileService
 import com.vsu.picstorm.domain.ProfileRepository
@@ -41,10 +42,18 @@ class ProfileRepositoryImpl @Inject constructor(
     override suspend fun uploadAvatar(token: String?, byteArray: ByteArray): Flow<ApiResult<Void>> {
         return requestFlow(
             {
-                val requestBody = byteArray.toRequestBody("image/jpeg".toMediaTypeOrNull(), 0, byteArray.size)
+                val requestBody =
+                    byteArray.toRequestBody("image/jpeg".toMediaTypeOrNull(), 0, byteArray.size)
                 profileService.uploadAvatar(createAuthHeader(token), requestBody)
             },
             { null }
+        )
+    }
+
+    override suspend fun getAvatar(userId: Long): Flow<ApiResult<Bitmap>> {
+        return requestFlow(
+            { profileService.getAvatar(userId) },
+            { value -> value?.mapToDomain() }
         )
     }
 }

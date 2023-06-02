@@ -34,7 +34,6 @@ class FeedAdapter : RecyclerView.Adapter<FeedAdapter.FeedViewHolder>(){
         val data = publications[position]
 
         with(holder){
-            avatarIv.setImageBitmap(data.avatar)
             dateTv.text = data.date.toString()
             rateTv.text = data.rating.toString()
             publicationIv.setImageBitmap(data.pic)

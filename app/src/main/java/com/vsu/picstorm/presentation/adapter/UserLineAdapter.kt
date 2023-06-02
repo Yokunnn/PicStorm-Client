@@ -5,6 +5,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.lifecycle.LifecycleOwner
+import androidx.lifecycle.lifecycleScope
 import androidx.navigation.NavController
 import androidx.recyclerview.widget.RecyclerView
 import com.vsu.picstorm.R
@@ -13,6 +14,7 @@ import com.vsu.picstorm.domain.TokenStorage
 import com.vsu.picstorm.domain.model.UserLine
 import com.vsu.picstorm.util.ApiStatus
 import com.vsu.picstorm.viewmodel.UserLineViewModel
+import kotlinx.coroutines.launch
 
 class UserLineAdapter constructor(
     private val userLineViewModel: UserLineViewModel,
@@ -52,9 +54,14 @@ class UserLineAdapter constructor(
     override fun onBindViewHolder(holder: SearchViewHolder, position: Int) {
         val data = items[position]
         viewHolders[data.id] = holder
+        lifecycleOwner.lifecycleScope.launch{
+            userLineViewModel.getAvatar(data.id).collect{ result ->
+                if (result.status == ApiStatus.SUCCESS) {
+                    holder.imageView.setImageBitmap(result.data)
+                }
+            }
+        }
         with(holder) {
-            imageView.setImageBitmap(data.avatar)
-
             nameButton.text = data.nickname
             nameButton.setOnClickListener {
                 val bundle = Bundle()
@@ -86,6 +93,7 @@ class UserLineAdapter constructor(
     override fun getItemCount(): Int = items.size
 
     fun clear() {
+        viewHolders.clear()
         items = emptyList<UserLine>().toMutableList()
     }
     fun update(data: List<UserLine>) {

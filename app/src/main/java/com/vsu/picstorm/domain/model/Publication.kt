@@ -6,7 +6,6 @@ import java.time.Instant
 
 data class Publication(
     val nickname: String,
-    val avatar: Bitmap,
     val pic: Bitmap,
     val rating: Long,
     val reactionType: ReactionType,

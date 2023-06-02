@@ -1,9 +1,10 @@
 package com.vsu.picstorm.data.service
 
 import com.vsu.picstorm.data.model.response.ChangeRoleResponse
+import com.vsu.picstorm.data.model.response.PictureResponse
 import com.vsu.picstorm.data.model.response.ProfileResponse
 import okhttp3.RequestBody
-import retrofit2.Response
+import retrofit2.Call
 import retrofit2.http.Body
 import retrofit2.http.GET
 import retrofit2.http.Header
@@ -14,26 +15,31 @@ import retrofit2.http.Path
 interface ProfileService {
 
     @GET("user/{userId}/profile")
-    suspend fun getProfile(
+    fun getProfile(
         @Header("Authorization") authHeader: String?,
         @Path("userId") userId: Long
-    ): Response<ProfileResponse>
+    ): Call<ProfileResponse>
 
     @POST("user/avatar")
-    suspend fun uploadAvatar(
+    fun uploadAvatar(
         @Header("Authorization") authHeader: String?,
         @Body picture: RequestBody
-    ): Response<Void>
+    ): Call<Void>
+
+    @GET("user/{userId}/avatar")
+    fun getAvatar(
+        @Path("userId") userId: Long
+    ): Call<PictureResponse>
 
     @PUT("user/{userId}/ban")
-    suspend fun banUser(
+    fun banUser(
         @Header("Authorization") authHeader: String?,
         @Path("userId") userId: Long
-    ): Response<ChangeRoleResponse>
+    ): Call<ChangeRoleResponse>
 
     @PUT("user/{userId}/admin")
-    suspend fun changeAdmin(
+    fun changeAdmin(
         @Header("Authorization") authHeader: String?,
         @Path("userId") userId: Long
-    ): Response<ChangeRoleResponse>
+    ): Call<ChangeRoleResponse>
 }

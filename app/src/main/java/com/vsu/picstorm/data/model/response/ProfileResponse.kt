@@ -5,8 +5,6 @@ import com.google.gson.annotations.SerializedName
 data class ProfileResponse(
     @SerializedName("id")
     val userId: Long,
-    @SerializedName("avatar")
-    val avatar: String?,
     @SerializedName("nickname")
     val name: String,
     @SerializedName("role")

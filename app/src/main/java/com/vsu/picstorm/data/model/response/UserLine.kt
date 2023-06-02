@@ -2,11 +2,9 @@ package com.vsu.picstorm.data.model.response
 
 import com.google.gson.annotations.SerializedName
 
-data class SearchedUser(
+data class UserLine(
     @SerializedName("userId")
     val id: Long,
-    @SerializedName("avatar")
-    val avatar: String?,
     @SerializedName("nickname")
     val name: String,
     @SerializedName("subscribed")

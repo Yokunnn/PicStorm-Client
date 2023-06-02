@@ -24,6 +24,7 @@ class ProfileViewModel @Inject constructor(
 ) : ViewModel() {
 
     val profileResult = MutableLiveData<ApiResult<Profile>>()
+    val avatarResult = MutableLiveData<ApiResult<Bitmap>>()
     val uploadPhotoResult = MutableLiveData<ApiResult<Void>>()
     val uploadAvatarResult = MutableLiveData<ApiResult<Void>>()
     val changeAdminResult = MutableLiveData<ApiResult<UserRole>>()
@@ -34,6 +35,14 @@ class ProfileViewModel @Inject constructor(
         viewModelScope.launch(Dispatchers.IO) {
             profileRepository.getProfile(token, userId).collect { result ->
                 profileResult.postValue(result)
+            }
+        }
+    }
+
+    fun getAvatar(userId: Long) {
+        viewModelScope.launch(Dispatchers.IO) {
+            profileRepository.getAvatar(userId).collect { result ->
+                avatarResult.postValue(result)
             }
         }
     }

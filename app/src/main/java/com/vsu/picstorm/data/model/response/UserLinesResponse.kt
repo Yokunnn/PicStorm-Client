@@ -4,7 +4,7 @@ import com.google.gson.annotations.SerializedName
 
 data class UserLinesResponse(
     @SerializedName("values")
-    val values: List<SearchedUser>,
+    val values: List<UserLine>,
     @SerializedName("index")
     val index: Int,
     @SerializedName("size")

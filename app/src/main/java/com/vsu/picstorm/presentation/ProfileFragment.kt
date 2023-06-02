@@ -58,13 +58,24 @@ class ProfileFragment : Fragment() {
         return binding.root
     }
 
+    fun observeAvatar() {
+        profileViewModel.avatarResult.observe(viewLifecycleOwner) { result ->
+            when (result.status) {
+                ApiStatus.SUCCESS -> {
+                    binding.avatarImageView.setImageBitmap(result.data)
+                }
+                ApiStatus.ERROR -> {}
+                ApiStatus.LOADING -> {}
+            }
+        }
+    }
+
     fun observeProfile() {
         profileViewModel.profileResult.observe(viewLifecycleOwner) { result ->
             when (result.status) {
                 ApiStatus.SUCCESS -> {
                     val profile = result.data!!
                     binding.nicknameTv.text = profile.name
-                    binding.avatarImageView.setImageBitmap(profile.avatar)
                     initSubLabels(profile)
                     if (viewerId != profile.userId) {
                         binding.banBtn.setOnClickListener{
@@ -84,9 +95,6 @@ class ProfileFragment : Fragment() {
                         binding.photoLoadBtn.visibility = View.VISIBLE
                         binding.photoLoadBtn.setOnClickListener {
                             showPhotoChooser(false)
-                        }
-                        binding.avatarImageView.setOnClickListener{
-                           showPhotoChooser(true)
                         }
                         observePhotoUpload()
                     }
@@ -266,6 +274,7 @@ class ProfileFragment : Fragment() {
         observeToken()
         observeProfile()
         initBottomNav()
+        observeAvatar()
     }
 
     fun uploadPhoto(uri: Uri) {
@@ -302,6 +311,10 @@ class ProfileFragment : Fragment() {
                     getAnotherUserProfile()
                     if (!startedInit) {
                         profileViewModel.getProfile(accessToken, viewerId!!)
+                        profileViewModel.getAvatar(viewerId!!)
+                        binding.avatarImageView.setOnClickListener{
+                            showPhotoChooser(true)
+                        }
                         startedInit = true
                     }
                 }
@@ -323,6 +336,7 @@ class ProfileFragment : Fragment() {
         if (requireArguments().containsKey("id")) {
             val userId = requireArguments().getLong("id")
             profileViewModel.getProfile(accessToken, userId)
+            profileViewModel.getAvatar(userId)
             startedInit = true
         }
     }
