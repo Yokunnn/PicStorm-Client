@@ -1,24 +1,21 @@
 package com.example.picstorm.presentation
 
 import android.os.Bundle
-import android.util.Log
-import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
-import androidx.lifecycle.viewModelScope
 import androidx.navigation.fragment.findNavController
 import com.example.picstorm.R
 import com.example.picstorm.databinding.FragmentLoginBinding
 import com.example.picstorm.domain.TokenStorage
 import com.example.picstorm.domain.model.UserLogin
-import com.example.picstorm.util.RequestState
+import com.example.picstorm.util.ApiStatus
 import com.example.picstorm.viewmodel.LoginViewModel
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
-import kotlin.coroutines.coroutineContext
 
 @AndroidEntryPoint
 class LoginFragment : Fragment() {
@@ -40,9 +37,7 @@ class LoginFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
         initButtons()
-
-        observeReqState()
-        observeToken()
+        observeLoginResult()
     }
 
     fun initButtons() {
@@ -62,33 +57,18 @@ class LoginFragment : Fragment() {
         }
     }
 
-    fun observeReqState() {
-        loginViewModel.reqState.observe(viewLifecycleOwner) { requestState ->
-            when (requestState) {
-                RequestState.LOADING -> {
-                    Log.i("State", "loading")
+    fun observeLoginResult() {
+        loginViewModel.loginResult.observe(viewLifecycleOwner) { result ->
+            when (result.status) {
+                ApiStatus.SUCCESS ->  {
+                    lifecycleScope.launch {
+                        tokenStorage.saveToken(result.data!!)
+                        findNavController().navigate(R.id.action_loginFragment_to_feedFragment)
+                    }
                 }
-                //show dialogfragment
-                RequestState.ERROR -> {
-                    Log.i("State", "error")
+                ApiStatus.ERROR ->   {
                 }
-                RequestState.SUCCESS -> {
-                    Log.i("State", "success")
-                    findNavController().navigate(R.id.action_loginFragment_to_feedFragment)
-                }
-            }
-        }
-    }
-
-    fun observeToken() {
-        loginViewModel.token.observe(viewLifecycleOwner) { token ->
-            when (token) {
-                null -> {
-
-                }
-                else -> lifecycleScope.launch {
-                    tokenStorage.saveToken(token)
-                    Log.i("Token", "saved")
+                ApiStatus.LOADING ->  {
                 }
             }
         }

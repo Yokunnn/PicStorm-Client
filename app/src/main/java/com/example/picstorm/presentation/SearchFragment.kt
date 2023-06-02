@@ -16,8 +16,9 @@ import com.example.picstorm.R
 import com.example.picstorm.databinding.FragmentSearchBinding
 import com.example.picstorm.domain.TokenStorage
 import com.example.picstorm.presentation.adapter.UserLineAdapter
-import com.example.picstorm.viewmodel.UserLineViewModel
+import com.example.picstorm.util.ApiStatus
 import com.example.picstorm.viewmodel.SearchViewModel
+import com.example.picstorm.viewmodel.UserLineViewModel
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -53,7 +54,7 @@ class SearchFragment : Fragment() {
         observeToken()
 
         initRecyclerView()
-        observeSearchItems()
+        observeSearchResult()
     }
 
     fun addTextListener() {
@@ -122,9 +123,17 @@ class SearchFragment : Fragment() {
         }
     }
 
-    fun observeSearchItems() {
-        searchViewModel.items.observe(viewLifecycleOwner) { items ->
-            searchAdapter.update(items)
+    fun observeSearchResult() {
+        searchViewModel.searchResult.observe(viewLifecycleOwner) { result ->
+            when (result.status) {
+                ApiStatus.SUCCESS ->  {
+                    searchAdapter.update(result.data!!)
+                }
+                ApiStatus.ERROR ->   {
+                }
+                ApiStatus.LOADING ->  {
+                }
+            }
         }
     }
 }

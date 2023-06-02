@@ -4,8 +4,7 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.picstorm.data.repository.SubscribeRepositoryImpl
-import com.example.picstorm.util.Request
-import com.example.picstorm.util.RequestState
+import com.example.picstorm.util.ApiResult
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -16,22 +15,12 @@ class UserLineViewModel @Inject constructor(
     private val subscribeRepository: SubscribeRepositoryImpl
 ) : ViewModel() {
 
-    val subReqState = MutableLiveData<Pair<RequestState, Long>>()
+    val subResult = MutableLiveData< Pair<Long, ApiResult<Void>>>()
 
     fun changeSubscribe(token: String?, userId: Long) {
         viewModelScope.launch(Dispatchers.IO) {
-            subscribeRepository.changeSubscribe(token, userId).collect { subId ->
-                when (subId) {
-                    is Request.Error -> {
-                        subReqState.postValue(Pair(RequestState.ERROR, userId))
-                    }
-                    is Request.Loading -> {
-                        subReqState.postValue(Pair(RequestState.LOADING, userId))
-                    }
-                    is Request.Success -> {
-                        subReqState.postValue(Pair(RequestState.SUCCESS, userId))
-                    }
-                }
+            subscribeRepository.changeSubscribe(token, userId).collect { result ->
+                subResult.postValue(Pair(userId, result))
             }
         }
     }

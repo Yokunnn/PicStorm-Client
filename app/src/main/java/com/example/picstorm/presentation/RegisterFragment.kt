@@ -2,23 +2,20 @@ package com.example.picstorm.presentation
 
 import android.os.Bundle
 import android.util.Log
-import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
-import com.auth0.android.jwt.JWT
 import com.example.picstorm.R
 import com.example.picstorm.databinding.FragmentRegisterBinding
 import com.example.picstorm.domain.TokenStorage
-import com.example.picstorm.domain.model.Token
 import com.example.picstorm.domain.model.UserRegister
-import com.example.picstorm.util.RequestState
+import com.example.picstorm.util.ApiStatus
 import com.example.picstorm.viewmodel.RegisterViewModel
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
@@ -42,9 +39,7 @@ class RegisterFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
         initButtons()
-
-        observeReqState()
-        observeToken()
+        observeRegisterResult()
     }
 
     fun initButtons() {
@@ -71,34 +66,20 @@ class RegisterFragment : Fragment() {
         }
     }
 
-    fun observeReqState() {
-        registerViewModel.reqState.observe(viewLifecycleOwner) { requestState ->
-            when (requestState) {
-                RequestState.LOADING -> {
-                    Log.i("State", "loading")
+    fun observeRegisterResult() {
+        registerViewModel.registerResult.observe(viewLifecycleOwner) { result ->
+            when (result.status) {
+                ApiStatus.SUCCESS ->  {
+                    lifecycleScope.launch {
+                        val token = result.data!!
+                        tokenStorage.saveToken(token)
+                        Log.i("Token access", token.accessToken)
+                        findNavController().navigate(R.id.action_registerFragment_to_feedFragment)
+                    }
                 }
-                //show dialogfragment
-                RequestState.ERROR -> {
-                    Log.i("State", "error")
+                ApiStatus.ERROR ->   {
                 }
-                RequestState.SUCCESS -> {
-                    Log.i("State", "success")
-                    findNavController().navigate(R.id.action_registerFragment_to_feedFragment)
-                }
-            }
-        }
-    }
-
-    fun observeToken() {
-        registerViewModel.token.observe(viewLifecycleOwner) { token ->
-            when (token) {
-                null -> {
-
-                }
-                else -> lifecycleScope.launch {
-                    tokenStorage.saveToken(token)
-                    Log.i("Token", "saved")
-                    Log.i("Token access", token.accessToken)
+                ApiStatus.LOADING ->  {
                 }
             }
         }

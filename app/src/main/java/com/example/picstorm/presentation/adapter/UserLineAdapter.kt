@@ -8,7 +8,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.picstorm.databinding.SearchItemBinding
 import com.example.picstorm.domain.TokenStorage
 import com.example.picstorm.domain.model.UserSearched
-import com.example.picstorm.util.RequestState
+import com.example.picstorm.util.ApiStatus
 import com.example.picstorm.viewmodel.UserLineViewModel
 
 class UserLineAdapter constructor(
@@ -25,17 +25,23 @@ class UserLineAdapter constructor(
 
     init {
         observeToken()
-        userLineViewModel.subReqState.observe(lifecycleOwner) { info ->
-            if (info.first == RequestState.SUCCESS) {
-                val holder: SearchViewHolder = viewHolders[info.second]!!
-                with(holder) {
-                    if (subButton.visibility == View.VISIBLE) {
-                        subButton.visibility = View.GONE
-                        unsubButton.visibility = View.VISIBLE
-                    } else if (unsubButton.visibility == View.VISIBLE) {
-                        unsubButton.visibility = View.GONE
-                        subButton.visibility = View.VISIBLE
+        userLineViewModel.subResult.observe(lifecycleOwner) { result ->
+            when (result.second.status) {
+                ApiStatus.SUCCESS ->  {
+                    val holder: SearchViewHolder = viewHolders[result.first]!!
+                    with(holder) {
+                        if (subButton.visibility == View.VISIBLE) {
+                            subButton.visibility = View.GONE
+                            unsubButton.visibility = View.VISIBLE
+                        } else if (unsubButton.visibility == View.VISIBLE) {
+                            unsubButton.visibility = View.GONE
+                            subButton.visibility = View.VISIBLE
+                        }
                     }
+                }
+                ApiStatus.ERROR ->   {
+                }
+                ApiStatus.LOADING ->  {
                 }
             }
         }
