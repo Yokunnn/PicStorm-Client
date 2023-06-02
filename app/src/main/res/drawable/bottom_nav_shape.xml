@@ -6,7 +6,4 @@
     <corners
         android:topRightRadius="15dp"
         android:topLeftRadius="15dp"/>
-    <stroke
-        android:color="@color/picStorm_pink"
-        android:width="2dp"/>
 </shape>
