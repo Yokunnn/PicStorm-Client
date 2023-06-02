@@ -43,7 +43,7 @@
         <item name="android:textColor">@color/picStorm_grey</item>
     </style>
 
-    <style name="Text.Forum.14.Violet">
+    <style name="Text.Forum.16.Violet">
         <item name="android:textColor">@color/picStorm_violet</item>
     </style>
 

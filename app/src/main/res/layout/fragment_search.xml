@@ -62,7 +62,7 @@
         app:layout_constraintTop_toBottomOf="@+id/cardView">
     </androidx.recyclerview.widget.RecyclerView>
 
-    <com.example.picstorm.presentation.BottomNavView
+    <com.vsu.picstorm.presentation.BottomNavView
         android:id="@+id/bottomNav"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"

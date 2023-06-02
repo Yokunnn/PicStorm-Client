@@ -24,5 +24,7 @@
     <string name="demoteAdmin">Разжаловать админа</string>
     <string name="subscribers_label">Подписчики: </string>
     <string name="subscriptions_label">Подписки: </string>
+    <string name="subscribers_title_label">Подписчики</string>
+    <string name="subscriptions_title_label">Подписки</string>
     <string name="default_name_label">...</string>
 </resources>

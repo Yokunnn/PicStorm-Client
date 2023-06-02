@@ -7,7 +7,7 @@
 
     <fragment
         android:id="@+id/splashFragment"
-        android:name="com.example.picstorm.presentation.SplashFragment"
+        android:name="com.vsu.picstorm.presentation.SplashFragment"
         android:label="fragment_splash"
         tools:layout="@layout/fragment_splash" >
         <action
@@ -18,7 +18,7 @@
     </fragment>
     <fragment
         android:id="@+id/loginFragment"
-        android:name="com.example.picstorm.presentation.LoginFragment"
+        android:name="com.vsu.picstorm.presentation.LoginFragment"
         android:label="fragment_login"
         tools:layout="@layout/fragment_login" >
         <action
@@ -30,7 +30,7 @@
     </fragment>
     <fragment
         android:id="@+id/feedFragment"
-        android:name="com.example.picstorm.presentation.FeedFragment"
+        android:name="com.vsu.picstorm.presentation.FeedFragment"
         android:label="fragment_feed"
         tools:layout="@layout/fragment_feed" >
         <action
@@ -45,7 +45,7 @@
     </fragment>
     <fragment
         android:id="@+id/registerFragment"
-        android:name="com.example.picstorm.presentation.RegisterFragment"
+        android:name="com.vsu.picstorm.presentation.RegisterFragment"
         android:label="fragment_register"
         tools:layout="@layout/fragment_register" >
         <action
@@ -57,7 +57,7 @@
     </fragment>
     <fragment
         android:id="@+id/searchFragment"
-        android:name="com.example.picstorm.presentation.SearchFragment"
+        android:name="com.vsu.picstorm.presentation.SearchFragment"
         android:label="fragment_search"
         tools:layout="@layout/fragment_search" >
         <action
@@ -72,7 +72,7 @@
     </fragment>
     <fragment
         android:id="@+id/profileFragment"
-        android:name="com.example.picstorm.presentation.ProfileFragment"
+        android:name="com.vsu.picstorm.presentation.ProfileFragment"
         android:label="fragment_profile"
         tools:layout="@layout/fragment_profile" >
         <action
@@ -93,7 +93,7 @@
     </fragment>
     <fragment
         android:id="@+id/subFragment"
-        android:name="com.example.picstorm.presentation.SubFragment"
+        android:name="com.vsu.picstorm.presentation.SubFragment"
         android:label="fragment_sub"
         tools:layout="@layout/fragment_sub" >
         <action
@@ -108,5 +108,11 @@
         <action
             android:id="@+id/action_subFragment_to_loginFragment"
             app:destination="@id/loginFragment" />
+        <argument
+            android:name="id"
+            app:argType="long" />
+        <argument
+            android:name="areSubscriptions"
+            app:argType="boolean" />
     </fragment>
 </navigation>

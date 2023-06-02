@@ -148,7 +148,7 @@
         android:layout_marginTop="154dp"
         android:background="@drawable/button_profile_shape"
         android:textAllCaps="false"
-        android:textAppearance="@style/Text.Forum.14.Violet"
+        android:textAppearance="@style/Text.Forum.16.Violet"
         android:text="@string/ban"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -165,7 +165,7 @@
         android:background="@drawable/button_profile_shape"
         android:text="@string/makeAdmin"
         android:textAllCaps="false"
-        android:textAppearance="@style/Text.Forum.14.Violet"
+        android:textAppearance="@style/Text.Forum.16.Violet"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
@@ -193,7 +193,7 @@
             android:layout_height="match_parent" />
     </androidx.cardview.widget.CardView>
     
-    <com.example.picstorm.presentation.BottomNavView
+    <com.vsu.picstorm.presentation.BottomNavView
         android:id="@+id/bottomNav"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
