@@ -29,4 +29,13 @@
     <string name="default_name_label">...</string>
     <string name="actionNo">Нет</string>
     <string name="actionYes">Да</string>
+    <string name="actionOk">Ок</string>
+    <string name="passwordNotMatch">Пароли не совпадают</string>
+    <string name="photoLoad">Загрузить</string>
+    <string name="photoCancel">Отмена</string>
+    <string name="photoWasLoaded">Ваше фото было опубликовано</string>
+    <string name="confirmLogout">Вы хотите выйти из аккаунта?</string>
+    <string name="confirmBan">Вы хотите заблокировать этого пользователя?</string>
+    <string name="confirmDemote">Вы хотите разжаловать этого админа?</string>
+    <string name="confirmMakeAdmin">Вы хотите сделать этого пользователя админом?</string>
 </resources>

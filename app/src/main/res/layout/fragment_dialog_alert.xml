@@ -27,30 +27,18 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
-            tools:text="Message is ready to confirm or cancel" />
+            tools:text="Alert is ready to alert" />
 
         <androidx.appcompat.widget.AppCompatButton
-            android:id="@+id/buttonConfirm"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:textAppearance="@style/Text.Forum.16.Violet"
-            android:background="#0000"
-            android:text="@string/actionYes"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toStartOf="@+id/buttonCancel"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/textView" />
-
-        <androidx.appcompat.widget.AppCompatButton
-            android:id="@+id/buttonCancel"
+            android:id="@+id/buttonOk"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:background="#0000"
-            android:text="@string/actionNo"
+            android:text="@string/actionOk"
             android:textAppearance="@style/Text.Forum.16.Violet"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toEndOf="@+id/buttonConfirm"
+            app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/textView" />
     </androidx.constraintlayout.widget.ConstraintLayout>
 

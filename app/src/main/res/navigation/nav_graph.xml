@@ -54,9 +54,6 @@
         <action
             android:id="@+id/action_registerFragment_to_feedFragment"
             app:destination="@id/feedFragment" />
-        <action
-            android:id="@+id/action_registerFragment_to_confirmDialogFragment"
-            app:destination="@id/confirmDialogFragment" />
     </fragment>
     <fragment
         android:id="@+id/searchFragment"
@@ -118,15 +115,4 @@
             android:name="areSubscriptions"
             app:argType="boolean" />
     </fragment>
-    <dialog
-        android:id="@+id/confirmDialogFragment"
-        android:name="com.vsu.picstorm.presentation.ConfirmDialogFragment"
-        android:label="ConfirmDialogFragment" >
-        <action
-            android:id="@+id/action_confirmDialogFragment_to_registerFragment"
-            app:destination="@id/registerFragment" />
-        <argument
-            android:name="message"
-            app:argType="string" />
-    </dialog>
 </navigation>

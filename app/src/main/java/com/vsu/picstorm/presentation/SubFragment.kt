@@ -1,5 +1,6 @@
 package com.vsu.picstorm.presentation
 
+import android.app.Dialog
 import android.os.Bundle
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
@@ -12,10 +13,12 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.auth0.android.jwt.JWT
 import com.vsu.picstorm.R
+import com.vsu.picstorm.databinding.FragmentDialogAlertBinding
 import com.vsu.picstorm.databinding.FragmentSubBinding
 import com.vsu.picstorm.domain.TokenStorage
 import com.vsu.picstorm.presentation.adapter.UserLineAdapter
 import com.vsu.picstorm.util.ApiStatus
+import com.vsu.picstorm.util.DialogFactory
 import com.vsu.picstorm.viewmodel.SubViewModel
 import com.vsu.picstorm.viewmodel.UserLineViewModel
 import dagger.hilt.android.AndroidEntryPoint
@@ -26,6 +29,8 @@ import kotlinx.coroutines.launch
 class SubFragment : Fragment() {
 
     private lateinit var binding: FragmentSubBinding
+    private lateinit var alertBinding: FragmentDialogAlertBinding
+    private lateinit var dialog: Dialog
     private lateinit var tokenStorage: TokenStorage
     private val subViewModel: SubViewModel by viewModels()
     private val userLineViewModel: UserLineViewModel by viewModels()
@@ -45,6 +50,8 @@ class SubFragment : Fragment() {
         usersAdapter = UserLineAdapter(userLineViewModel, viewLifecycleOwner, tokenStorage, findNavController())
         userId = requireArguments().getLong("id")
         areSubscriptions = requireArguments().getBoolean("areSubscriptions")
+        alertBinding = FragmentDialogAlertBinding.inflate(inflater, container, false)
+        dialog = DialogFactory.createAlertDialog(requireContext(), alertBinding)
         return binding.root
     }
 
@@ -74,6 +81,8 @@ class SubFragment : Fragment() {
                     usersAdapter.update(data)
                 }
                 ApiStatus.ERROR ->   {
+                    alertBinding.textView.text = result.message.toString()
+                    dialog.show()
                 }
                 ApiStatus.LOADING ->  {
                 }

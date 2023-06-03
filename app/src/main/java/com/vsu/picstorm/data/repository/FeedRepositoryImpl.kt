@@ -6,6 +6,8 @@ import com.vsu.picstorm.util.ApiResult
 import com.vsu.picstorm.util.RequestUtils.requestFlow
 import com.vsu.picstorm.util.createAuthHeader
 import kotlinx.coroutines.flow.Flow
+import okhttp3.MediaType.Companion.toMediaTypeOrNull
+import okhttp3.RequestBody.Companion.toRequestBody
 import javax.inject.Inject
 
 
@@ -15,7 +17,11 @@ class FeedRepositoryImpl @Inject constructor(
 
     override suspend fun loadPhoto(token: String?, byteArray: ByteArray): Flow<ApiResult<Void>> {
         return requestFlow(
-            { publicationService.loadPhoto(createAuthHeader(token), byteArray) },
+            {
+                val requestBody =
+                    byteArray.toRequestBody("image/jpeg".toMediaTypeOrNull(), 0, byteArray.size)
+                publicationService.loadPhoto(createAuthHeader(token), requestBody)
+            },
             { value -> value }
         )
     }

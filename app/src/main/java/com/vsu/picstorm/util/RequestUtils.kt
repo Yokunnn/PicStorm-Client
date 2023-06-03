@@ -1,5 +1,8 @@
 package com.vsu.picstorm.util
 
+import androidx.compose.ui.res.stringResource
+import com.google.gson.Gson
+import com.vsu.picstorm.data.model.Error
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
@@ -22,14 +25,21 @@ object RequestUtils {
                             val result = ApiResult.Success(mapper(body))
                             trySend(result)
                         } else {
-                            val errorMsg = response.errorBody()?.toString() ?: "Something went wrong"
-                            response.errorBody()?.close()
+                            val errorMsg: String = response.errorBody()?.let {
+                                val error =
+                                    Gson().fromJson(
+                                        response.errorBody()!!.charStream(),
+                                        Error::class.java
+                                    )
+                                response.errorBody()?.close()
+                                error.message.trim()
+                            } ?: "Что-то пошло не так"
                             trySend(ApiResult.Error(errorMsg))
                         }
                     }
 
                     override fun onFailure(call: Call<R>, t: Throwable) {
-                        val errorMsg = "No connection with server"
+                        val errorMsg = "Нет соединения с сервером"
                         trySend(ApiResult.Error(errorMsg))
                     }
                 }

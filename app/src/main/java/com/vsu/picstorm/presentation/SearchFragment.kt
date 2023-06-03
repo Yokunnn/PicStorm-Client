@@ -1,5 +1,6 @@
 package com.vsu.picstorm.presentation
 
+import android.app.Dialog
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -13,10 +14,12 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.auth0.android.jwt.JWT
 import com.vsu.picstorm.R
+import com.vsu.picstorm.databinding.FragmentDialogAlertBinding
 import com.vsu.picstorm.databinding.FragmentSearchBinding
 import com.vsu.picstorm.domain.TokenStorage
 import com.vsu.picstorm.presentation.adapter.UserLineAdapter
 import com.vsu.picstorm.util.ApiStatus
+import com.vsu.picstorm.util.DialogFactory
 import com.vsu.picstorm.viewmodel.SearchViewModel
 import com.vsu.picstorm.viewmodel.UserLineViewModel
 import dagger.hilt.android.AndroidEntryPoint
@@ -27,6 +30,7 @@ import kotlinx.coroutines.launch
 class SearchFragment : Fragment() {
 
     private lateinit var binding: FragmentSearchBinding
+    private lateinit var alertBinding: FragmentDialogAlertBinding
     private val searchViewModel: SearchViewModel by viewModels()
     private val userLineViewModel: UserLineViewModel by viewModels()
     private lateinit var tokenStorage: TokenStorage
@@ -34,6 +38,7 @@ class SearchFragment : Fragment() {
     private var lastPage = 0
     private var accessToken: String? = null
     private lateinit var searchAdapter: UserLineAdapter
+    private lateinit var dialog: Dialog
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -42,6 +47,8 @@ class SearchFragment : Fragment() {
         binding = FragmentSearchBinding.inflate(inflater, container, false)
         tokenStorage = TokenStorage(this.requireContext())
         searchAdapter = UserLineAdapter(userLineViewModel, viewLifecycleOwner, tokenStorage, findNavController())
+        alertBinding = FragmentDialogAlertBinding.inflate(inflater, container, false)
+        dialog = DialogFactory.createAlertDialog(requireContext(), alertBinding)
         return binding.root
     }
 
@@ -114,7 +121,7 @@ class SearchFragment : Fragment() {
     fun observeToken() {
         tokenStorage.token.observe(viewLifecycleOwner) { token ->
             if (token.accessToken != "null") {
-                var jwt = JWT(token.accessToken)
+                val jwt = JWT(token.accessToken)
                 if (jwt.isExpired(0)) {
                     lifecycleScope.launch(Dispatchers.IO) {
                         tokenStorage.deleteToken()
@@ -142,6 +149,8 @@ class SearchFragment : Fragment() {
                     searchAdapter.update(data)
                 }
                 ApiStatus.ERROR ->   {
+                    alertBinding.textView.text = result.second.message.toString()
+                    dialog.show()
                 }
                 ApiStatus.LOADING ->  {
                 }

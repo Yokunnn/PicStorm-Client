@@ -1,6 +1,7 @@
 package com.vsu.picstorm.presentation
 
 import android.app.Activity
+import android.app.Dialog
 import android.content.Intent
 import android.graphics.Bitmap
 import android.graphics.ImageDecoder
@@ -18,12 +19,16 @@ import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import com.auth0.android.jwt.JWT
 import com.vsu.picstorm.R
+import com.vsu.picstorm.databinding.FragmentDialogAlertBinding
+import com.vsu.picstorm.databinding.FragmentDialogConfirmBinding
+import com.vsu.picstorm.databinding.FragmentDialogPhotoLoadBinding
 import com.vsu.picstorm.databinding.FragmentProfileBinding
 import com.vsu.picstorm.domain.TokenStorage
 import com.vsu.picstorm.domain.model.Profile
 import com.vsu.picstorm.domain.model.enums.UserRole
 import com.vsu.picstorm.util.ApiResult
 import com.vsu.picstorm.util.ApiStatus
+import com.vsu.picstorm.util.DialogFactory
 import com.vsu.picstorm.util.PixelConverter
 import com.vsu.picstorm.viewmodel.ProfileViewModel
 import dagger.hilt.android.AndroidEntryPoint
@@ -33,6 +38,14 @@ import kotlinx.coroutines.launch
 class ProfileFragment : Fragment() {
 
     private lateinit var binding: FragmentProfileBinding
+    private lateinit var alertBinding: FragmentDialogAlertBinding
+    private lateinit var loadBinding: FragmentDialogPhotoLoadBinding
+    private lateinit var confirmAdminBinding: FragmentDialogConfirmBinding
+    private lateinit var confirmBanBinding: FragmentDialogConfirmBinding
+    private lateinit var alertDialog: Dialog
+    private lateinit var loadDialog: Dialog
+    private lateinit var confirmAdminDialog: Dialog
+    private lateinit var confirmBanDialog: Dialog
     private val profileViewModel: ProfileViewModel by viewModels()
     private lateinit var tokenStorage: TokenStorage
     private var startedInit = false
@@ -55,6 +68,16 @@ class ProfileFragment : Fragment() {
     ): View? {
         binding = FragmentProfileBinding.inflate(inflater, container, false)
         tokenStorage = TokenStorage(this.requireContext())
+
+        alertBinding = FragmentDialogAlertBinding.inflate(inflater, container, false)
+        loadBinding = FragmentDialogPhotoLoadBinding.inflate(inflater, container, false)
+        confirmAdminBinding = FragmentDialogConfirmBinding.inflate(inflater, container, false)
+        confirmBanBinding = FragmentDialogConfirmBinding.inflate(inflater, container, false)
+        alertDialog = DialogFactory.createAlertDialog(requireContext(), alertBinding)
+        loadDialog = DialogFactory.createPhotoLoadDialog(requireContext(), loadBinding)
+        confirmAdminDialog = DialogFactory.createConfirmDialog(requireContext(), confirmAdminBinding)
+        confirmBanDialog = DialogFactory.createConfirmDialog(requireContext(), confirmBanBinding)
+
         return binding.root
     }
 
@@ -78,11 +101,20 @@ class ProfileFragment : Fragment() {
                     binding.nicknameTv.text = profile.name
                     initSubLabels(profile)
                     if (viewerId != profile.userId) {
-                        binding.banBtn.setOnClickListener{
+                        confirmBanBinding.textView.text = getString(R.string.confirmBan)
+                        confirmBanBinding.buttonConfirm.setOnClickListener {
                             profileViewModel.banUser(accessToken, profile.userId)
+                            confirmBanDialog.dismiss()
+                        }
+                        binding.banBtn.setOnClickListener{
+                            confirmBanDialog.show()
+                        }
+                        confirmAdminBinding.buttonConfirm.setOnClickListener {
+                            profileViewModel.changeAdmin(accessToken, profile.userId)
+                            confirmAdminDialog.dismiss()
                         }
                         binding.adminBtn.setOnClickListener{
-                            profileViewModel.changeAdmin(accessToken, profile.userId)
+                            confirmAdminDialog.show()
                         }
                         observeChangeAdminResult()
                         observeBanUserResult()
@@ -90,13 +122,18 @@ class ProfileFragment : Fragment() {
                     } else {
                         binding.logoutBtn.visibility = View.VISIBLE
                         binding.logoutBtn.setOnClickListener {
-                            logout()
+                            confirmAdminBinding.buttonConfirm.setOnClickListener {
+                                confirmAdminDialog.dismiss()
+                                logout()
+                            }
+                            confirmAdminBinding.textView.text = getString(R.string.confirmLogout)
+                            confirmAdminDialog.show()
                         }
                         binding.photoLoadBtn.visibility = View.VISIBLE
                         binding.photoLoadBtn.setOnClickListener {
                             showPhotoChooser(false)
                         }
-                        observePhotoUpload()
+                        handlePhotoUpload()
                     }
                     if (profile.subscribed == true) {
                         binding.unsubBtn.visibility = View.VISIBLE
@@ -175,8 +212,10 @@ class ProfileFragment : Fragment() {
             binding.adminBtn.visibility = View.VISIBLE
             if (userRole == UserRole.ADMIN) {
                 binding.adminBtn.text = resources.getString(R.string.demoteAdmin)
+                confirmAdminBinding.textView.text = getString(R.string.confirmDemote)
             } else if (userRole == UserRole.ORDINARY) {
                 binding.adminBtn.text = resources.getString(R.string.makeAdmin)
+                confirmAdminBinding.textView.text = getString(R.string.confirmMakeAdmin)
             }
             actionButtons += 1
         } else {
@@ -203,16 +242,16 @@ class ProfileFragment : Fragment() {
         }
     }
 
-    fun observePhotoUpload() {
+    fun handlePhotoUpload() {
         profileViewModel.uploadPhotoResult.observe(viewLifecycleOwner) { result ->
-            handlePhotoUploadResult(result)
+            observePhotoUploadResult(result)
         }
         profileViewModel.uploadAvatarResult.observe(viewLifecycleOwner) { result ->
-            handlePhotoUploadResult(result)
+            observePhotoUploadResult(result)
         }
     }
 
-    fun handlePhotoUploadResult(result: ApiResult<Void>) {
+    fun observePhotoUploadResult(result: ApiResult<Void>) {
         when (result.status) {
             ApiStatus.SUCCESS ->  {
                 findNavController().navigate(R.id.profileFragment)
@@ -290,7 +329,12 @@ class ProfileFragment : Fragment() {
         if (choosingAvatar) {
             profileViewModel.uploadAvatar(accessToken, bitmap)
         } else {
-            profileViewModel.uploadPhoto(accessToken, bitmap)
+            loadBinding.imageView.setImageBitmap(bitmap)
+            loadBinding.buttonConfirm.setOnClickListener {
+                profileViewModel.uploadPhoto(accessToken, bitmap)
+                loadDialog.dismiss()
+            }
+            loadDialog.show()
         }
     }
 

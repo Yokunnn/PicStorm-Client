@@ -51,11 +51,15 @@
 
             <TextView
                 android:id="@+id/nicknameTv"
-                android:layout_width="wrap_content"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:layout_marginEnd="55dp"
+                android:ellipsize="end"
+                android:singleLine="true"
                 android:text="@string/default_name_label"
                 android:textAppearance="@style/Text.Forum.24"
                 app:layout_constraintBottom_toTopOf="@+id/subscriptionsTv"
+                app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
                 tools:text="Name" />

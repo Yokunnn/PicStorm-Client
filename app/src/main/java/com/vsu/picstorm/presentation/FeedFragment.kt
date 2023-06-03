@@ -1,6 +1,7 @@
 package com.vsu.picstorm.presentation
 
 import android.app.Activity
+import android.app.Dialog
 import android.content.Intent
 import android.graphics.Bitmap
 import android.graphics.ImageDecoder
@@ -24,6 +25,10 @@ import com.vsu.picstorm.domain.TokenStorage
 import com.vsu.picstorm.presentation.adapter.FeedAdapter
 import com.vsu.picstorm.viewmodel.FeedViewModel
 import com.skydoves.powerspinner.PowerSpinnerView
+import com.vsu.picstorm.databinding.FragmentDialogAlertBinding
+import com.vsu.picstorm.databinding.FragmentDialogPhotoLoadBinding
+import com.vsu.picstorm.util.ApiStatus
+import com.vsu.picstorm.util.DialogFactory
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -32,6 +37,10 @@ import kotlinx.coroutines.launch
 class FeedFragment : Fragment() {
 
     private lateinit var binding: FragmentFeedBinding
+    private lateinit var alertBinding: FragmentDialogAlertBinding
+    private lateinit var photoAlertBinding: FragmentDialogPhotoLoadBinding
+    private lateinit var dialog: Dialog
+    private lateinit var loadDialog: Dialog
     private val feedViewModel: FeedViewModel by viewModels()
     private lateinit var tokenStorage: TokenStorage
     private lateinit var feedSpinner: PowerSpinnerView
@@ -59,6 +68,11 @@ class FeedFragment : Fragment() {
         feedSpinner = binding.feedSpinner
         filterDateSpinner = binding.filterDateSpinner
         filterRatingSpinner = binding.filterRatingSpinner
+
+        alertBinding = FragmentDialogAlertBinding.inflate(inflater, container, false)
+        photoAlertBinding = FragmentDialogPhotoLoadBinding.inflate(inflater, container, false)
+        dialog = DialogFactory.createAlertDialog(requireContext(), alertBinding)
+        loadDialog = DialogFactory.createPhotoLoadDialog(requireContext(), photoAlertBinding)
         return binding.root
     }
 
@@ -66,6 +80,7 @@ class FeedFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
         observeToken()
+        observeLoadResult()
 
         initRecyclerView()
 
@@ -92,12 +107,6 @@ class FeedFragment : Fragment() {
                         initPhotoLoadBtn()
                         initBottomNav(false)
                     }
-                    Log.i(
-                        "Access",
-                        jwta.getClaim("authorities").asList(String::class.java).toString()
-                    )
-                    Log.i("Access", jwta.subject.toString())
-                    Log.i("Access", jwta.expiresAt.toString())
                 }
             } else {
                 accessToken = null
@@ -134,13 +143,34 @@ class FeedFragment : Fragment() {
                 activity?.contentResolver!!,
                 uri
             )
-            //imageView.setImageBitmap(bitmap)
         } else {
             val source = ImageDecoder.createSource(activity?.contentResolver!!, uri)
             ImageDecoder.decodeBitmap(source)
-            //imageView.setImageBitmap(bitmap)
         }
-        feedViewModel.loadPhoto(accessToken, bitmap)
+        photoAlertBinding.imageView.setImageBitmap(bitmap)
+        photoAlertBinding.buttonConfirm.setOnClickListener {
+            feedViewModel.loadPhoto(accessToken, bitmap)
+            loadDialog.dismiss()
+        }
+        loadDialog.show()
+    }
+
+    fun observeLoadResult(){
+        feedViewModel.loadResult.observe(viewLifecycleOwner) { result ->
+            when (result.status) {
+                ApiStatus.SUCCESS ->  {
+                    alertBinding.textView.text = resources.getString(R.string.photoWasLoaded)
+                    dialog.show()
+                }
+                ApiStatus.LOADING ->  {
+
+                }
+                ApiStatus.ERROR ->  {
+                    alertBinding.textView.text = result.message.toString()
+                    dialog.show()
+                }
+            }
+        }
     }
 
     fun initBottomNav(isAuthorised: Boolean) {
