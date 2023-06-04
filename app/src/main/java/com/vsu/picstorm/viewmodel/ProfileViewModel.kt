@@ -10,6 +10,7 @@ import com.vsu.picstorm.data.repository.SubscriptionRepositoryImpl
 import com.vsu.picstorm.domain.model.Profile
 import com.vsu.picstorm.domain.model.enums.UserRole
 import com.vsu.picstorm.util.ApiResult
+import com.vsu.picstorm.util.AppConstants
 import com.vsu.picstorm.util.ImageCompressor
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
@@ -39,9 +40,9 @@ class ProfileViewModel @Inject constructor(
         }
     }
 
-    fun getAvatar(userId: Long) {
+    fun getAvatar(userId: Long, width: Int) {
         viewModelScope.launch(Dispatchers.IO) {
-            profileRepository.getAvatar(userId).collect { result ->
+            profileRepository.getAvatar(userId, width).collect { result ->
                 avatarResult.postValue(result)
             }
         }
@@ -49,7 +50,7 @@ class ProfileViewModel @Inject constructor(
 
     fun uploadAvatar(token: String?, image: Bitmap) {
         viewModelScope.launch(Dispatchers.IO) {
-            val compressed = ImageCompressor.compress(image, 100)
+            val compressed = ImageCompressor.compress(image, AppConstants.AVATAR_PHOTO_MAX_SIZE)
             profileRepository.uploadAvatar(token, compressed).collect{result ->
                 uploadAvatarResult.postValue(result)
             }
@@ -58,7 +59,7 @@ class ProfileViewModel @Inject constructor(
 
     fun uploadPhoto(token: String?, image: Bitmap) {
         viewModelScope.launch(Dispatchers.IO) {
-            val compressed = ImageCompressor.compress(image, 1024)
+            val compressed = ImageCompressor.compress(image, AppConstants.PUBLICATION_PHOTO_MAX_SIZE)
             feedRepository.loadPhoto(token, compressed).collect{result ->
                 uploadPhotoResult.postValue(result)
             }

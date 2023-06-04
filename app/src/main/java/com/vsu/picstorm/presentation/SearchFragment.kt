@@ -46,7 +46,7 @@ class SearchFragment : Fragment() {
     ): View {
         binding = FragmentSearchBinding.inflate(inflater, container, false)
         tokenStorage = TokenStorage(this.requireContext())
-        searchAdapter = UserLineAdapter(userLineViewModel, viewLifecycleOwner, tokenStorage, findNavController())
+        searchAdapter = UserLineAdapter(userLineViewModel, viewLifecycleOwner, tokenStorage, findNavController(), requireContext())
         alertBinding = FragmentDialogAlertBinding.inflate(inflater, container, false)
         dialog = DialogFactory.createAlertDialog(requireContext(), alertBinding)
         return binding.root
@@ -104,14 +104,12 @@ class SearchFragment : Fragment() {
                 val itemsCount = layoutManager.itemCount
                 val lastVisibleItem = layoutManager.findLastVisibleItemPosition()
                 if (!searchAdapter.isLoading && itemsCount == lastVisibleItem + 1 && itemsCount / pageSize == lastPage + 1) {
-                    searchAdapter.isLoading = true
                     searchViewModel.search(
                         accessToken,
                         binding.editTextSearch.text.toString(),
                         itemsCount / pageSize,
                         pageSize
                     )
-                    searchAdapter.isLoading = false
                     lastPage++
                 }
             }
@@ -144,17 +142,26 @@ class SearchFragment : Fragment() {
                 ApiStatus.SUCCESS ->  {
                     if (result.first == 0) {
                         searchAdapter.clear()
+                        lastPage = 0
                     }
                     val data = result.second.data!!
                     searchAdapter.update(data)
+                    searchAdapter.isLoading = false
                 }
                 ApiStatus.ERROR ->   {
+                    searchAdapter.isLoading = false
                     alertBinding.textView.text = result.second.message.toString()
                     dialog.show()
                 }
                 ApiStatus.LOADING ->  {
+                    searchAdapter.isLoading = true
                 }
             }
         }
+    }
+
+    override fun onDestroyView() {
+        searchAdapter.recycleAll()
+        super.onDestroyView()
     }
 }

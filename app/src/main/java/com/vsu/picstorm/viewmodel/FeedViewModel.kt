@@ -7,12 +7,12 @@ import androidx.lifecycle.viewModelScope
 import com.vsu.picstorm.data.repository.FeedRepositoryImpl
 import com.vsu.picstorm.data.repository.ProfileRepositoryImpl
 import com.vsu.picstorm.domain.model.Publication
-import com.vsu.picstorm.domain.model.UserLine
 import com.vsu.picstorm.domain.model.enums.DateFilterType
 import com.vsu.picstorm.domain.model.enums.ReactionType
 import com.vsu.picstorm.domain.model.enums.SortFilterType
 import com.vsu.picstorm.domain.model.enums.UserFilterType
 import com.vsu.picstorm.util.ApiResult
+import com.vsu.picstorm.util.AppConstants
 import com.vsu.picstorm.util.ImageCompressor
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
@@ -35,15 +35,15 @@ class FeedViewModel @Inject constructor(
 
     fun loadPhoto(token: String?, image: Bitmap) {
         viewModelScope.launch(Dispatchers.IO) {
-            val compressed = ImageCompressor.compress(image, 1024)
+            val compressed = ImageCompressor.compress(image, AppConstants.PUBLICATION_PHOTO_MAX_SIZE)
             feedRepository.loadPhoto(token, compressed).collect { result ->
                 loadResult.postValue(result)
             }
         }
     }
 
-    suspend fun getAvatar(userId: Long): Flow<ApiResult<Bitmap>> {
-        return profileRepository.getAvatar(userId)
+    suspend fun getAvatar(userId: Long, width: Int): Flow<ApiResult<Bitmap>> {
+        return profileRepository.getAvatar(userId, width)
     }
 
     fun getFeed(
@@ -70,8 +70,8 @@ class FeedViewModel @Inject constructor(
         }
     }
 
-    suspend fun getPublicationPhoto(publicationId: Long): Flow<ApiResult<Bitmap>> {
-        return feedRepository.getPhoto(publicationId)
+    suspend fun getPublicationPhoto(publicationId: Long, width: Int): Flow<ApiResult<Bitmap>> {
+        return feedRepository.getPhoto(publicationId, width)
     }
 
     fun deletePublication(token: String?, publicationId: Long) {

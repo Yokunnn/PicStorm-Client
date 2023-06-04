@@ -14,7 +14,6 @@ import com.vsu.picstorm.util.RequestUtils.requestFlow
 import com.vsu.picstorm.util.createAuthHeader
 import kotlinx.coroutines.flow.Flow
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
-import okhttp3.RequestBody
 import okhttp3.RequestBody.Companion.toRequestBody
 import javax.inject.Inject
 
@@ -59,10 +58,10 @@ class FeedRepositoryImpl @Inject constructor(
         )
     }
 
-    override suspend fun getPhoto(publicationId: Long): Flow<ApiResult<Bitmap>> {
+    override suspend fun getPhoto(publicationId: Long, width: Int): Flow<ApiResult<Bitmap>> {
         return requestFlow(
             { publicationService.getPublicationPhoto(publicationId) },
-            { value -> value?.mapToDomain() }
+            { value -> value?.mapToDomain(width) }
         )
     }
 

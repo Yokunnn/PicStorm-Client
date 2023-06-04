@@ -1,7 +1,6 @@
 package com.vsu.picstorm.domain
 
 import android.graphics.Bitmap
-import androidx.datastore.preferences.protobuf.Api
 import com.vsu.picstorm.domain.model.Publication
 import com.vsu.picstorm.domain.model.enums.DateFilterType
 import com.vsu.picstorm.domain.model.enums.ReactionType
@@ -23,7 +22,7 @@ interface FeedRepository {
         size: Int
     ): Flow<ApiResult<List<Publication>>>
 
-    suspend fun getPhoto(publicationId: Long): Flow<ApiResult<Bitmap>>
+    suspend fun getPhoto(publicationId: Long, width: Int): Flow<ApiResult<Bitmap>>
     suspend fun banPublication(token: String?, publicationId: Long): Flow<ApiResult<Void>>
     suspend fun deletePublication(token: String?, publicationId: Long): Flow<ApiResult<Void>>
 

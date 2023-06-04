@@ -90,6 +90,8 @@ dependencies {
 
     //PowerSpinner for easier customize
     implementation "com.github.skydoves:powerspinner:1.2.6"
+
+    implementation "androidx.swiperefreshlayout:swiperefreshlayout:1.1.0"
 }
 
 kapt {

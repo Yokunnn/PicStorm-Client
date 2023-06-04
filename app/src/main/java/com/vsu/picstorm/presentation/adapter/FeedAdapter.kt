@@ -1,5 +1,6 @@
 package com.vsu.picstorm.presentation.adapter
 
+import android.app.Dialog
 import android.content.Context
 import android.os.Build
 import android.os.Bundle
@@ -14,11 +15,15 @@ import androidx.navigation.NavController
 import androidx.recyclerview.widget.RecyclerView
 import com.auth0.android.jwt.JWT
 import com.vsu.picstorm.R
+import com.vsu.picstorm.databinding.FragmentDialogAlertBinding
+import com.vsu.picstorm.databinding.FragmentDialogConfirmBinding
 import com.vsu.picstorm.databinding.PublicationItemBinding
 import com.vsu.picstorm.domain.TokenStorage
 import com.vsu.picstorm.domain.model.Publication
 import com.vsu.picstorm.domain.model.enums.ReactionType
 import com.vsu.picstorm.util.ApiStatus
+import com.vsu.picstorm.util.DialogFactory
+import com.vsu.picstorm.util.PixelConverter
 import com.vsu.picstorm.viewmodel.FeedViewModel
 import kotlinx.coroutines.launch
 import java.time.Clock
@@ -31,7 +36,10 @@ class FeedAdapter constructor(
     private val lifecycleOwner: LifecycleOwner,
     private val tokenStorage: TokenStorage,
     private val navController: NavController,
-    private val context: Context
+    private val context: Context,
+    private val alertBinding: FragmentDialogAlertBinding,
+    private val confirmBanBinding: FragmentDialogConfirmBinding,
+    private val confirmDeleteBinding: FragmentDialogConfirmBinding,
 ) : RecyclerView.Adapter<FeedAdapter.FeedViewHolder>() {
 
     private var publications: MutableList<Publication> = emptyList<Publication>().toMutableList()
@@ -41,12 +49,17 @@ class FeedAdapter constructor(
     var isLoading: Boolean = false
     private var viewHolders: MutableMap<Long, FeedAdapter.FeedViewHolder> =
         emptyMap<Long, FeedAdapter.FeedViewHolder>().toMutableMap()
+    private var alertDialog: Dialog = DialogFactory.createAlertDialog(context, alertBinding)
+    private var confirmBanDialog: Dialog = DialogFactory.createConfirmDialog(context, confirmBanBinding)
+    private var confirmDeleteDialog: Dialog = DialogFactory.createConfirmDialog(context, confirmDeleteBinding)
+    private lateinit var recyclerView: RecyclerView
 
     init {
         observeToken()
         observeReactRes()
         observeBanRes()
         observeDeleteRes()
+        initDialogs()
     }
 
     inner class FeedViewHolder(
@@ -60,7 +73,14 @@ class FeedAdapter constructor(
         val rateDownButton = binding.rateDownButton
         val rateTv = binding.rateTextView
         val dateTv = binding.dateTextView
+        val imageCard = binding.imageCard
     }
+
+    override fun onAttachedToRecyclerView(recyclerView: RecyclerView) {
+        super.onAttachedToRecyclerView(recyclerView)
+        this.recyclerView = recyclerView
+    }
+
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): FeedViewHolder {
         val binding = PublicationItemBinding.inflate(
@@ -73,16 +93,25 @@ class FeedAdapter constructor(
         val data = publications[position]
         viewHolders[data.id] = holder
         lifecycleOwner.lifecycleScope.launch {
-            feedViewModel.getAvatar(data.ownerId).collect { result ->
+            val width = holder.imageCard.layoutParams.width
+            feedViewModel.getAvatar(data.ownerId, width).collect { result ->
                 if (result.status == ApiStatus.SUCCESS) {
                     holder.avatarIv.setImageBitmap(result.data)
                 }
             }
         }
+        if (data.publicationHeight != null) {
+            holder.publicationIv.layoutParams.height = data.publicationHeight!!
+            holder.publicationIv.requestLayout()
+        }
+        val width = recyclerView.width - PixelConverter.fromDP(context, 30)
         lifecycleOwner.lifecycleScope.launch {
-            feedViewModel.getPublicationPhoto(data.id).collect { result ->
+            feedViewModel.getPublicationPhoto(data.id, width).collect { result ->
                 if (result.status == ApiStatus.SUCCESS) {
-                    holder.publicationIv.setImageBitmap(result.data)
+                    if (result.data != null) {
+                        holder.publicationIv.setImageBitmap(result.data)
+                        data.publicationHeight = result.data.height * width / result.data.width
+                    }
                 }
             }
         }
@@ -104,9 +133,17 @@ class FeedAdapter constructor(
             }
             deleteButton.setOnClickListener {
                 if (userId == data.ownerId) {
-                    feedViewModel.deletePublication(accessToken, data.id)
+                    confirmDeleteBinding.buttonConfirm.setOnClickListener {
+                        confirmDeleteDialog.dismiss()
+                        feedViewModel.deletePublication(accessToken, data.id)
+                    }
+                    confirmDeleteDialog.show()
                 } else {
-                    feedViewModel.banPublication(accessToken, data.id)
+                    confirmBanBinding.buttonConfirm.setOnClickListener {
+                        confirmBanDialog.dismiss()
+                        feedViewModel.banPublication(accessToken, data.id)
+                    }
+                    confirmBanDialog.show()
                 }
             }
 
@@ -223,8 +260,23 @@ class FeedAdapter constructor(
         }
     }
 
+    fun initDialogs() {
+        confirmBanBinding.textView.text = context.getString(R.string.banPublicationConfirm)
+        confirmDeleteBinding.textView.text = context.getString(R.string.deletePublicationConfirm)
+    }
+
     override fun onViewRecycled(holder: FeedViewHolder) {
         super.onViewRecycled(holder)
+        recycleViewHolder(holder)
+    }
+
+    fun recycleAll() {
+        for (holder in viewHolders.values) {
+            recycleViewHolder(holder)
+        }
+    }
+
+    fun recycleViewHolder(holder: FeedViewHolder) {
         holder.publicationIv.drawable?.toBitmapOrNull()?.recycle()
         holder.avatarIv.drawable?.toBitmapOrNull()?.recycle()
         holder.publicationIv.setImageBitmap(null)
@@ -260,8 +312,9 @@ class FeedAdapter constructor(
     }
 
     fun update(data: List<Publication>) {
+        val index = publications.size
         publications.addAll(data)
-        notifyDataSetChanged()
+        notifyItemRangeInserted(index, data.size)
     }
 
     fun observeToken() {
@@ -287,6 +340,8 @@ class FeedAdapter constructor(
                     deleteById(result.first)
                 }
                 ApiStatus.ERROR -> {
+                    alertBinding.textView.text = result.second.message
+                    alertDialog.show()
                 }
                 ApiStatus.LOADING -> {
                 }
@@ -301,6 +356,8 @@ class FeedAdapter constructor(
                     deleteById(result.first)
                 }
                 ApiStatus.ERROR -> {
+                    alertBinding.textView.text = result.second.message
+                    alertDialog.show()
                 }
                 ApiStatus.LOADING -> {
                 }
@@ -309,6 +366,7 @@ class FeedAdapter constructor(
     }
 
     fun deleteById(publicationId: Long) {
+        recycleViewHolder(viewHolders[publicationId]!!)
         viewHolders.remove(publicationId)
         publications.filter { publication -> publicationId != publication.id }
         var i = 0
@@ -422,6 +480,8 @@ class FeedAdapter constructor(
                         data.reactionType = result.second.data
                     }
                     ApiStatus.ERROR -> {
+                        alertBinding.textView.text = result.second.message
+                        alertDialog.show()
                     }
                     ApiStatus.LOADING -> {
                         holder.rateUpButton.isClickable = false

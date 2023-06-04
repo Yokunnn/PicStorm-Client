@@ -50,10 +50,10 @@ class ProfileRepositoryImpl @Inject constructor(
         )
     }
 
-    override suspend fun getAvatar(userId: Long): Flow<ApiResult<Bitmap>> {
+    override suspend fun getAvatar(userId: Long, width: Int): Flow<ApiResult<Bitmap>> {
         return requestFlow(
             { profileService.getAvatar(userId) },
-            { value -> value?.mapToDomain() }
+            { value -> value?.mapToDomain(width) }
         )
     }
 }

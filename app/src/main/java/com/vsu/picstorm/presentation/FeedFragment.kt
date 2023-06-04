@@ -9,7 +9,6 @@ import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.provider.MediaStore
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -21,19 +20,20 @@ import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.auth0.android.jwt.JWT
+import com.skydoves.powerspinner.PowerSpinnerView
 import com.vsu.picstorm.R
+import com.vsu.picstorm.databinding.FragmentDialogAlertBinding
+import com.vsu.picstorm.databinding.FragmentDialogConfirmBinding
+import com.vsu.picstorm.databinding.FragmentDialogPhotoLoadBinding
 import com.vsu.picstorm.databinding.FragmentFeedBinding
 import com.vsu.picstorm.domain.TokenStorage
-import com.vsu.picstorm.presentation.adapter.FeedAdapter
-import com.vsu.picstorm.viewmodel.FeedViewModel
-import com.skydoves.powerspinner.PowerSpinnerView
-import com.vsu.picstorm.databinding.FragmentDialogAlertBinding
-import com.vsu.picstorm.databinding.FragmentDialogPhotoLoadBinding
 import com.vsu.picstorm.domain.model.enums.DateFilterType
 import com.vsu.picstorm.domain.model.enums.SortFilterType
 import com.vsu.picstorm.domain.model.enums.UserFilterType
+import com.vsu.picstorm.presentation.adapter.FeedAdapter
 import com.vsu.picstorm.util.ApiStatus
 import com.vsu.picstorm.util.DialogFactory
+import com.vsu.picstorm.viewmodel.FeedViewModel
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -43,6 +43,9 @@ class FeedFragment : Fragment() {
 
     private lateinit var binding: FragmentFeedBinding
     private lateinit var alertBinding: FragmentDialogAlertBinding
+    private lateinit var alertRecycleBinding: FragmentDialogAlertBinding
+    private lateinit var confirmBanBinding: FragmentDialogConfirmBinding
+    private lateinit var confirmDeleteBinding: FragmentDialogConfirmBinding
     private lateinit var photoAlertBinding: FragmentDialogPhotoLoadBinding
     private lateinit var dialog: Dialog
     private lateinit var loadDialog: Dialog
@@ -56,7 +59,7 @@ class FeedFragment : Fragment() {
     private var dateFilterType = DateFilterType.NONE
     private var sortFilterType = SortFilterType.NONE
     private var userFilterType = UserFilterType.ALL
-    private val pageSize: Int = 8
+    private val pageSize: Int = 5
     private var lastPage = 0
     private lateinit var feedAdapter: FeedAdapter
     private var photoLauncher =
@@ -73,17 +76,21 @@ class FeedFragment : Fragment() {
     ): View {
         binding = FragmentFeedBinding.inflate(inflater, container, false)
         tokenStorage = TokenStorage(this.requireContext())
-        feedAdapter =
-            FeedAdapter(feedViewModel, viewLifecycleOwner, tokenStorage, findNavController(), requireContext())
 
         feedSpinner = binding.feedSpinner
         filterDateSpinner = binding.filterDateSpinner
         filterRatingSpinner = binding.filterRatingSpinner
 
         alertBinding = FragmentDialogAlertBinding.inflate(inflater, container, false)
+        alertRecycleBinding = FragmentDialogAlertBinding.inflate(inflater, container, false)
+        confirmBanBinding = FragmentDialogConfirmBinding.inflate(inflater, container, false)
+        confirmDeleteBinding = FragmentDialogConfirmBinding.inflate(inflater, container, false)
         photoAlertBinding = FragmentDialogPhotoLoadBinding.inflate(inflater, container, false)
         dialog = DialogFactory.createAlertDialog(requireContext(), alertBinding)
         loadDialog = DialogFactory.createPhotoLoadDialog(requireContext(), photoAlertBinding)
+        feedAdapter = FeedAdapter(feedViewModel, viewLifecycleOwner, tokenStorage, findNavController(),
+                requireContext(), alertRecycleBinding, confirmBanBinding, confirmDeleteBinding)
+
         return binding.root
     }
 
@@ -98,8 +105,14 @@ class FeedFragment : Fragment() {
         observeToken()
         observeLoadResult()
         observeFeed()
+        setRefreshListener()
     }
 
+    fun setRefreshListener() {
+        binding.refreshLayout.setOnRefreshListener{
+            refreshFeed()
+        }
+    }
     private fun observeToken() {
         tokenStorage.token.observe(viewLifecycleOwner) { token ->
             if (token.accessToken != "null") {
@@ -139,7 +152,6 @@ class FeedFragment : Fragment() {
     }
 
     fun initRecyclerView() {
-        binding.feedRv.setItemViewCacheSize(pageSize)
         binding.feedRv.layoutManager =
             LinearLayoutManager(this.requireContext(), LinearLayoutManager.VERTICAL, false)
         binding.feedRv.adapter = feedAdapter
@@ -152,7 +164,6 @@ class FeedFragment : Fragment() {
                 val itemsCount = layoutManager.itemCount
                 val lastVisibleItem = layoutManager.findLastVisibleItemPosition()
                 if (!feedAdapter.isLoading && itemsCount == lastVisibleItem + 1 && itemsCount / pageSize == lastPage + 1) {
-                    feedAdapter.isLoading = true
                     feedViewModel.getFeed(
                         accessToken,
                         dateFilterType,
@@ -162,7 +173,6 @@ class FeedFragment : Fragment() {
                         itemsCount / pageSize,
                         pageSize
                     )
-                    feedAdapter.isLoading = false
                     lastPage++
                 }
             }
@@ -228,12 +238,16 @@ class FeedFragment : Fragment() {
                 ApiStatus.SUCCESS -> {
                     val data = result.data!!
                     feedAdapter.update(data)
+                    binding.refreshLayout.isRefreshing = false
+                    feedAdapter.isLoading = false
                 }
                 ApiStatus.ERROR -> {
+                    feedAdapter.isLoading = false
                     alertBinding.textView.text = result.message.toString()
                     dialog.show()
                 }
                 ApiStatus.LOADING -> {
+                    feedAdapter.isLoading = true
                 }
             }
         }
@@ -351,6 +365,7 @@ class FeedFragment : Fragment() {
             0,
             pageSize
         )
+        lastPage = 0
     }
 
     override fun onStop() {
@@ -358,5 +373,10 @@ class FeedFragment : Fragment() {
         filterRatingSpinner.dismiss()
         feedSpinner.dismiss()
         super.onStop()
+    }
+
+    override fun onDestroyView() {
+        feedAdapter.recycleAll()
+        super.onDestroyView()
     }
 }

@@ -13,6 +13,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.core.graphics.drawable.toBitmapOrNull
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
@@ -355,7 +356,8 @@ class ProfileFragment : Fragment() {
                     getAnotherUserProfile()
                     if (!startedInit) {
                         profileViewModel.getProfile(accessToken, viewerId!!)
-                        profileViewModel.getAvatar(viewerId!!)
+                        val width = PixelConverter.fromDP(requireContext(), binding.imageCard.layoutParams.width)
+                        profileViewModel.getAvatar(viewerId!!, width)
                         binding.avatarImageView.setOnClickListener{
                             showPhotoChooser(true)
                         }
@@ -380,7 +382,8 @@ class ProfileFragment : Fragment() {
         if (requireArguments().containsKey("id")) {
             val userId = requireArguments().getLong("id")
             profileViewModel.getProfile(accessToken, userId)
-            profileViewModel.getAvatar(userId)
+            val width = PixelConverter.fromDP(requireContext(), binding.imageCard.layoutParams.width)
+            profileViewModel.getAvatar(userId, width)
             startedInit = true
         }
     }
@@ -392,5 +395,11 @@ class ProfileFragment : Fragment() {
         binding.bottomNav.binding.imageSearch.setOnClickListener {
             findNavController().navigate(R.id.action_profileFragment_to_searchFragment)
         }
+    }
+
+    override fun onDestroyView() {
+        binding.avatarImageView.drawable?.toBitmapOrNull()?.recycle()
+        binding.avatarImageView.setImageBitmap(null)
+        super.onDestroyView()
     }
 }

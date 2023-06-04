@@ -11,5 +11,5 @@ interface ProfileRepository {
     suspend fun changeAdmin(token: String?, userId: Long): Flow<ApiResult<UserRole>>
     suspend fun banUser(token: String?, userId: Long): Flow<ApiResult<UserRole>>
     suspend fun uploadAvatar(token: String?, byteArray: ByteArray): Flow<ApiResult<Void>>
-    suspend fun getAvatar(userId: Long): Flow<ApiResult<Bitmap>>
+    suspend fun getAvatar(userId: Long, width: Int): Flow<ApiResult<Bitmap>>
 }

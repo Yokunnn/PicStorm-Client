@@ -1,9 +1,11 @@
 package com.vsu.picstorm.presentation.adapter
 
+import android.content.Context
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.core.graphics.drawable.toBitmapOrNull
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.NavController
@@ -13,6 +15,7 @@ import com.vsu.picstorm.databinding.SearchItemBinding
 import com.vsu.picstorm.domain.TokenStorage
 import com.vsu.picstorm.domain.model.UserLine
 import com.vsu.picstorm.util.ApiStatus
+import com.vsu.picstorm.util.PixelConverter
 import com.vsu.picstorm.viewmodel.UserLineViewModel
 import kotlinx.coroutines.launch
 
@@ -20,21 +23,22 @@ class UserLineAdapter constructor(
     private val userLineViewModel: UserLineViewModel,
     private val lifecycleOwner: LifecycleOwner,
     private val tokenStorage: TokenStorage,
-    private val navController: NavController
-) : RecyclerView.Adapter<UserLineAdapter.SearchViewHolder>() {
+    private val navController: NavController,
+    private val context: Context
+) : RecyclerView.Adapter<UserLineAdapter.UserViewHolder>() {
 
     private var items: MutableList<UserLine> = emptyList<UserLine>().toMutableList()
     private var accessToken: String? = null
     var isLoading: Boolean = false
-    private var viewHolders: MutableMap<Long, SearchViewHolder> =
-        emptyMap<Long, SearchViewHolder>().toMutableMap()
+    private var viewHolders: MutableMap<Long, UserViewHolder> =
+        emptyMap<Long, UserViewHolder>().toMutableMap()
 
     init {
         observeToken()
         observeSubRes()
     }
 
-    inner class SearchViewHolder(
+    inner class UserViewHolder(
         binding: SearchItemBinding
     ) : RecyclerView.ViewHolder(binding.root) {
 
@@ -42,20 +46,22 @@ class UserLineAdapter constructor(
         val nameButton = binding.nameButton
         val subButton = binding.subButton
         val unsubButton = binding.unsubButton
+        val imageCard = binding.imageCard
     }
 
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): SearchViewHolder {
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): UserViewHolder {
         val binding = SearchItemBinding.inflate(
             LayoutInflater.from(parent.context), parent, false
         )
-        return SearchViewHolder(binding)
+        return UserViewHolder(binding)
     }
 
-    override fun onBindViewHolder(holder: SearchViewHolder, position: Int) {
+    override fun onBindViewHolder(holder: UserViewHolder, position: Int) {
         val data = items[position]
         viewHolders[data.id] = holder
         lifecycleOwner.lifecycleScope.launch {
-            userLineViewModel.getAvatar(data.id).collect { result ->
+            val width = PixelConverter.fromDP(context, holder.imageCard.layoutParams.width)
+            userLineViewModel.getAvatar(data.id, width).collect { result ->
                 if (result.status == ApiStatus.SUCCESS) {
                     holder.imageView.setImageBitmap(result.data)
                 }
@@ -98,8 +104,9 @@ class UserLineAdapter constructor(
     }
 
     fun update(data: List<UserLine>) {
+        val index = items.size
         items.addAll(data)
-        notifyDataSetChanged()
+        notifyItemRangeInserted(index, data.size)
     }
 
     fun observeToken() {
@@ -114,7 +121,7 @@ class UserLineAdapter constructor(
 
     fun observeSubRes() {
         userLineViewModel.subResult.observe(lifecycleOwner) { result ->
-            val holder: SearchViewHolder? = viewHolders[result.first]
+            val holder: UserViewHolder? = viewHolders[result.first]
             holder?.let {
                 val data = items.find { user -> user.id == result.first }!!
                 when (result.second.status) {
@@ -143,5 +150,21 @@ class UserLineAdapter constructor(
                 }
             }
         }
+    }
+
+    override fun onViewRecycled(holder: UserLineAdapter.UserViewHolder) {
+        super.onViewRecycled(holder)
+        recycleViewHolder(holder)
+    }
+
+    fun recycleAll() {
+        for (holder in viewHolders.values) {
+            recycleViewHolder(holder)
+        }
+    }
+
+    fun recycleViewHolder(holder: UserLineAdapter.UserViewHolder) {
+        holder.imageView.drawable?.toBitmapOrNull()?.recycle()
+        holder.imageView.setImageBitmap(null)
     }
 }

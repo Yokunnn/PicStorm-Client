@@ -9,5 +9,6 @@ data class Publication(
     val ownerNickname: String,
     var rating: Long,
     val date: Instant,
-    var reactionType: ReactionType?
+    var reactionType: ReactionType?,
+    var publicationHeight: Int?
 )

@@ -29,7 +29,7 @@ class UserLineViewModel @Inject constructor(
         }
     }
 
-    suspend fun getAvatar(userId: Long) : Flow<ApiResult<Bitmap>> {
-        return profileRepository.getAvatar(userId)
+    suspend fun getAvatar(userId: Long, width: Int) : Flow<ApiResult<Bitmap>> {
+        return profileRepository.getAvatar(userId, width)
     }
 }

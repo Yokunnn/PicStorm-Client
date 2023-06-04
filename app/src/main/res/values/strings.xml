@@ -38,4 +38,6 @@
     <string name="confirmBan">Вы хотите заблокировать этого пользователя?</string>
     <string name="confirmDemote">Вы хотите разжаловать этого админа?</string>
     <string name="confirmMakeAdmin">Вы хотите сделать этого пользователя админом?</string>
+    <string name="banPublicationConfirm">Вы хотите заблокировать эту публикацию?</string>
+    <string name="deletePublicationConfirm">Вы хотите удалить свою публикацю?</string>
 </resources>

@@ -17,7 +17,7 @@ fun FeedResponse.mapToDomain(): List<Publication> {
             }
         }
         val publication =
-            Publication(u.id, u.ownerId, u.ownerName, u.rating, Instant.parse(u.uploadDate), reactionType)
+            Publication(u.id, u.ownerId, u.ownerName, u.rating, Instant.parse(u.uploadDate), reactionType, null)
         values = values + publication
     }
     return values

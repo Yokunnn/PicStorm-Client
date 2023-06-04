@@ -47,7 +47,7 @@ class SubFragment : Fragment() {
     ): View? {
         binding = FragmentSubBinding.inflate(inflater, container, false)
         tokenStorage = TokenStorage(this.requireContext())
-        usersAdapter = UserLineAdapter(userLineViewModel, viewLifecycleOwner, tokenStorage, findNavController())
+        usersAdapter = UserLineAdapter(userLineViewModel, viewLifecycleOwner, tokenStorage, findNavController(), requireContext())
         userId = requireArguments().getLong("id")
         areSubscriptions = requireArguments().getBoolean("areSubscriptions")
         alertBinding = FragmentDialogAlertBinding.inflate(inflater, container, false)
@@ -79,12 +79,15 @@ class SubFragment : Fragment() {
                 ApiStatus.SUCCESS ->  {
                     val data = result.data!!
                     usersAdapter.update(data)
+                    usersAdapter.isLoading = false
                 }
                 ApiStatus.ERROR ->   {
+                    usersAdapter.isLoading = false
                     alertBinding.textView.text = result.message.toString()
                     dialog.show()
                 }
                 ApiStatus.LOADING ->  {
+                    usersAdapter.isLoading = true
                 }
             }
         }
@@ -129,13 +132,11 @@ class SubFragment : Fragment() {
                 val itemsCount = layoutManager.itemCount
                 val lastVisibleItem = layoutManager.findLastVisibleItemPosition()
                 if (!usersAdapter.isLoading && itemsCount == lastVisibleItem + 1 && itemsCount / pageSize == lastPage + 1) {
-                    usersAdapter.isLoading = true
                     if (areSubscriptions) {
                         subViewModel.getSubscriptions(accessToken, userId, itemsCount / pageSize, pageSize)
                     } else {
                         subViewModel.getSubscribers(accessToken, userId, itemsCount / pageSize, pageSize)
                     }
-                    usersAdapter.isLoading = false
                     lastPage++
                 }
             }
@@ -165,5 +166,10 @@ class SubFragment : Fragment() {
             }
 
         }
+    }
+
+    override fun onDestroyView() {
+        usersAdapter.recycleAll()
+        super.onDestroyView()
     }
 }
