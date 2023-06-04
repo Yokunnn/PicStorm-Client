@@ -40,4 +40,6 @@
     <string name="confirmMakeAdmin">Вы хотите сделать этого пользователя админом?</string>
     <string name="banPublicationConfirm">Вы хотите заблокировать эту публикацию?</string>
     <string name="deletePublicationConfirm">Вы хотите удалить свою публикацю?</string>
+    <string name="userPublications">Публикации пользователя</string>
+    <string name="myPublications">Мои публикации</string>
 </resources>

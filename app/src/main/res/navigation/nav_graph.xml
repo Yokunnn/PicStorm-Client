@@ -90,6 +90,9 @@
         <argument
             android:name="id"
             app:argType="long" />
+        <action
+            android:id="@+id/action_profileFragment_to_userFeedFragment"
+            app:destination="@id/userFeedFragment" />
     </fragment>
     <fragment
         android:id="@+id/subFragment"
@@ -114,5 +117,28 @@
         <argument
             android:name="areSubscriptions"
             app:argType="boolean" />
+    </fragment>
+    <fragment
+        android:id="@+id/userFeedFragment"
+        android:name="com.vsu.picstorm.presentation.UserFeedFragment"
+        android:label="UserFeedFragment" >
+        <argument
+            android:name="pubId"
+            app:argType="integer" />
+        <action
+            android:id="@+id/action_userFeedFragment_to_profileFragment"
+            app:destination="@id/profileFragment" />
+        <action
+            android:id="@+id/action_userFeedFragment_to_feedFragment"
+            app:destination="@id/feedFragment" />
+        <action
+            android:id="@+id/action_userFeedFragment_to_searchFragment"
+            app:destination="@id/searchFragment" />
+        <argument
+            android:name="userId"
+            app:argType="long" />
+        <action
+            android:id="@+id/action_userFeedFragment_to_loginFragment"
+            app:destination="@id/loginFragment" />
     </fragment>
 </navigation>
