@@ -100,7 +100,9 @@ class UserLineAdapter constructor(
 
     fun clear() {
         viewHolders.clear()
+        val size = items.size
         items = emptyList<UserLine>().toMutableList()
+        notifyItemRangeRemoved(0, size)
     }
 
     fun update(data: List<UserLine>) {
