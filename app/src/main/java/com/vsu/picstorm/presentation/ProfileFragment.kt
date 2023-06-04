@@ -18,6 +18,8 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
+import androidx.recyclerview.widget.RecyclerView
+import androidx.recyclerview.widget.StaggeredGridLayoutManager
 import com.auth0.android.jwt.JWT
 import com.vsu.picstorm.R
 import com.vsu.picstorm.databinding.FragmentDialogAlertBinding
@@ -26,8 +28,11 @@ import com.vsu.picstorm.databinding.FragmentDialogPhotoLoadBinding
 import com.vsu.picstorm.databinding.FragmentProfileBinding
 import com.vsu.picstorm.domain.TokenStorage
 import com.vsu.picstorm.domain.model.Profile
+import com.vsu.picstorm.domain.model.enums.DateFilterType
+import com.vsu.picstorm.domain.model.enums.SortFilterType
+import com.vsu.picstorm.domain.model.enums.UserFilterType
 import com.vsu.picstorm.domain.model.enums.UserRole
-import com.vsu.picstorm.util.ApiResult
+import com.vsu.picstorm.presentation.adapter.ProfileFeedAdapter
 import com.vsu.picstorm.util.ApiStatus
 import com.vsu.picstorm.util.DialogFactory
 import com.vsu.picstorm.util.PixelConverter
@@ -53,7 +58,12 @@ class ProfileFragment : Fragment() {
     private var viewerRole = UserRole.UNAUTHORIZED
     private var choosingAvatar = false
     private var viewerId: Long? = null
+    private var profileOwnerId : Long? = null
     private var accessToken: String? = null
+    private lateinit var feedAdapter: ProfileFeedAdapter
+    private val pageSize: Int = 12
+    private var lastPage = 0
+
 
     private var photoLauncher =
         registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
@@ -78,6 +88,7 @@ class ProfileFragment : Fragment() {
         loadDialog = DialogFactory.createPhotoLoadDialog(requireContext(), loadBinding)
         confirmAdminDialog = DialogFactory.createConfirmDialog(requireContext(), confirmAdminBinding)
         confirmBanDialog = DialogFactory.createConfirmDialog(requireContext(), confirmBanBinding)
+        feedAdapter = ProfileFeedAdapter(profileViewModel, viewLifecycleOwner, requireContext(), findNavController())
 
         return binding.root
     }
@@ -245,23 +256,36 @@ class ProfileFragment : Fragment() {
 
     fun handlePhotoUpload() {
         profileViewModel.uploadPhotoResult.observe(viewLifecycleOwner) { result ->
-            observePhotoUploadResult(result)
+            when (result.status) {
+                ApiStatus.SUCCESS ->  {
+                    refreshFeed()
+                    alertBinding.textView.text = getString(R.string.photoWasLoaded)
+                    alertDialog.show()
+                }
+                ApiStatus.LOADING ->  {
+
+                }
+                ApiStatus.ERROR ->  {
+                    alertBinding.textView.text = result.message
+                    alertDialog.show()
+                }
+            }
         }
         profileViewModel.uploadAvatarResult.observe(viewLifecycleOwner) { result ->
-            observePhotoUploadResult(result)
-        }
-    }
+            when (result.status) {
+                ApiStatus.SUCCESS ->  {
+                    val width = PixelConverter.fromDP(requireContext(), binding.imageCard.layoutParams.width)
+                    profileViewModel.getAvatar(profileOwnerId!!, width)
+                    alertBinding.textView.text = getString(R.string.avatarWasLoaded)
+                    alertDialog.show()
+                }
+                ApiStatus.LOADING ->  {
 
-    fun observePhotoUploadResult(result: ApiResult<Void>) {
-        when (result.status) {
-            ApiStatus.SUCCESS ->  {
-                findNavController().navigate(R.id.profileFragment)
-            }
-            ApiStatus.LOADING ->  {
-
-            }
-            ApiStatus.ERROR ->  {
-
+                }
+                ApiStatus.ERROR ->  {
+                    alertBinding.textView.text = result.message
+                    alertDialog.show()
+                }
             }
         }
     }
@@ -315,6 +339,9 @@ class ProfileFragment : Fragment() {
         observeProfile()
         initBottomNav()
         observeAvatar()
+        initRecyclerView()
+        observeFeed()
+        setRefreshListener()
     }
 
     fun uploadPhoto(uri: Uri) {
@@ -355,7 +382,17 @@ class ProfileFragment : Fragment() {
                 if (!startedInit) {
                     getAnotherUserProfile()
                     if (!startedInit) {
+                        profileOwnerId = viewerId
                         profileViewModel.getProfile(accessToken, viewerId!!)
+                        profileViewModel.getFeed(
+                            accessToken,
+                            DateFilterType.NONE,
+                            SortFilterType.NONE,
+                            UserFilterType.SPECIFIED,
+                            profileOwnerId,
+                            0,
+                            pageSize
+                        )
                         val width = PixelConverter.fromDP(requireContext(), binding.imageCard.layoutParams.width)
                         profileViewModel.getAvatar(viewerId!!, width)
                         binding.avatarImageView.setOnClickListener{
@@ -380,10 +417,19 @@ class ProfileFragment : Fragment() {
 
     fun getAnotherUserProfile() {
         if (requireArguments().containsKey("id")) {
-            val userId = requireArguments().getLong("id")
-            profileViewModel.getProfile(accessToken, userId)
+            profileOwnerId = requireArguments().getLong("id")
+            profileViewModel.getProfile(accessToken, profileOwnerId!!)
+            profileViewModel.getFeed(
+                accessToken,
+                DateFilterType.NONE,
+                SortFilterType.NONE,
+                UserFilterType.SPECIFIED,
+                profileOwnerId,
+                0,
+                pageSize
+            )
             val width = PixelConverter.fromDP(requireContext(), binding.imageCard.layoutParams.width)
-            profileViewModel.getAvatar(userId, width)
+            profileViewModel.getAvatar(profileOwnerId!!, width)
             startedInit = true
         }
     }
@@ -397,9 +443,80 @@ class ProfileFragment : Fragment() {
         }
     }
 
+    fun initRecyclerView() {
+        binding.photoRv.layoutManager = StaggeredGridLayoutManager(3, StaggeredGridLayoutManager.VERTICAL)
+        binding.photoRv.adapter = feedAdapter
+
+        val layoutManager = binding.photoRv.layoutManager as StaggeredGridLayoutManager
+        binding.photoRv.addOnScrollListener(object : RecyclerView.OnScrollListener() {
+            override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
+                super.onScrolled(recyclerView, dx, dy)
+
+                val itemsCount = layoutManager.itemCount
+                val positions =  layoutManager.findLastVisibleItemPositions(null)
+                val lastVisibleItem = positions.max()
+                if (!feedAdapter.isLoading && itemsCount == lastVisibleItem + 1 && itemsCount / pageSize == lastPage + 1) {
+                    profileViewModel.getFeed(
+                        accessToken,
+                        DateFilterType.NONE,
+                        SortFilterType.NONE,
+                        UserFilterType.ALL,
+                        profileOwnerId,
+                        itemsCount / pageSize,
+                        pageSize
+                    )
+                    lastPage++
+                }
+            }
+        })
+    }
+
+    fun observeFeed() {
+        profileViewModel.feedResult.observe(viewLifecycleOwner) { result ->
+            when (result.status) {
+                ApiStatus.SUCCESS -> {
+                    val data = result.data!!
+                    feedAdapter.add(data)
+                    feedAdapter.isLoading = false
+                    binding.refreshLayout.isRefreshing = false
+
+                }
+                ApiStatus.ERROR -> {
+                    feedAdapter.isLoading = false
+                    alertBinding.textView.text = result.message.toString()
+                    alertDialog.show()
+                }
+                ApiStatus.LOADING -> {
+                    feedAdapter.isLoading = true
+                }
+            }
+        }
+    }
+
     override fun onDestroyView() {
         binding.avatarImageView.drawable?.toBitmapOrNull()?.recycle()
         binding.avatarImageView.setImageBitmap(null)
+        feedAdapter.recycleAll()
         super.onDestroyView()
+    }
+
+    fun setRefreshListener() {
+        binding.refreshLayout.setOnRefreshListener{
+            refreshFeed()
+        }
+    }
+
+    fun refreshFeed() {
+        feedAdapter.clear()
+        profileViewModel.getFeed(
+            accessToken,
+            DateFilterType.NONE,
+            SortFilterType.NONE,
+            UserFilterType.SPECIFIED,
+            profileOwnerId,
+            0,
+            pageSize
+        )
+        lastPage = 0
     }
 }

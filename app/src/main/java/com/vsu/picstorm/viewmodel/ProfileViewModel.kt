@@ -8,12 +8,17 @@ import com.vsu.picstorm.data.repository.FeedRepositoryImpl
 import com.vsu.picstorm.data.repository.ProfileRepositoryImpl
 import com.vsu.picstorm.data.repository.SubscriptionRepositoryImpl
 import com.vsu.picstorm.domain.model.Profile
+import com.vsu.picstorm.domain.model.Publication
+import com.vsu.picstorm.domain.model.enums.DateFilterType
+import com.vsu.picstorm.domain.model.enums.SortFilterType
+import com.vsu.picstorm.domain.model.enums.UserFilterType
 import com.vsu.picstorm.domain.model.enums.UserRole
 import com.vsu.picstorm.util.ApiResult
 import com.vsu.picstorm.util.AppConstants
 import com.vsu.picstorm.util.ImageCompressor
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -31,6 +36,35 @@ class ProfileViewModel @Inject constructor(
     val changeAdminResult = MutableLiveData<ApiResult<UserRole>>()
     val banUserResult = MutableLiveData<ApiResult<UserRole>>()
     val subResult = MutableLiveData<ApiResult<Long>>()
+    val feedResult = MutableLiveData<ApiResult<List<Publication>>>()
+
+    fun getFeed(
+        token: String?,
+        dateFilterType: DateFilterType,
+        sortFilterType: SortFilterType,
+        userFilterType: UserFilterType,
+        specifiedId: Long?,
+        index: Int,
+        size: Int
+    ) {
+        viewModelScope.launch(Dispatchers.IO) {
+            feedRepository.getFeed(
+                token,
+                dateFilterType,
+                sortFilterType,
+                userFilterType,
+                specifiedId,
+                index,
+                size
+            ).collect { result ->
+                feedResult.postValue(result)
+            }
+        }
+    }
+
+    suspend fun getPublicationPhoto(publicationId: Long, width: Int): Flow<ApiResult<Bitmap>> {
+        return feedRepository.getPhoto(publicationId, width)
+    }
 
     fun getProfile(token: String?, userId: Long) {
         viewModelScope.launch(Dispatchers.IO) {

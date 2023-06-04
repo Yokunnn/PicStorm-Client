@@ -34,6 +34,7 @@
     <string name="photoLoad">Загрузить</string>
     <string name="photoCancel">Отмена</string>
     <string name="photoWasLoaded">Ваше фото было опубликовано</string>
+    <string name="avatarWasLoaded">Новый аватар был установлен</string>
     <string name="confirmLogout">Вы хотите выйти из аккаунта?</string>
     <string name="confirmBan">Вы хотите заблокировать этого пользователя?</string>
     <string name="confirmDemote">Вы хотите разжаловать этого админа?</string>

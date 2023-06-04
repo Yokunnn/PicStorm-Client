@@ -12,12 +12,15 @@ import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.auth0.android.jwt.JWT
+import com.google.gson.Gson
+import com.google.gson.reflect.TypeToken
 import com.vsu.picstorm.R
 import com.vsu.picstorm.databinding.FragmentDialogAlertBinding
 import com.vsu.picstorm.databinding.FragmentDialogConfirmBinding
 import com.vsu.picstorm.databinding.FragmentDialogPhotoLoadBinding
 import com.vsu.picstorm.databinding.FragmentUserFeedBinding
 import com.vsu.picstorm.domain.TokenStorage
+import com.vsu.picstorm.domain.model.Publication
 import com.vsu.picstorm.domain.model.enums.DateFilterType
 import com.vsu.picstorm.domain.model.enums.SortFilterType
 import com.vsu.picstorm.domain.model.enums.UserFilterType
@@ -28,6 +31,8 @@ import com.vsu.picstorm.viewmodel.FeedViewModel
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import java.lang.reflect.Type
+
 
 @AndroidEntryPoint
 class UserFeedFragment : Fragment() {
@@ -44,11 +49,13 @@ class UserFeedFragment : Fragment() {
 
     private lateinit var tokenStorage: TokenStorage
     private val feedViewModel: FeedViewModel by viewModels()
-    private val pageSize = 1
+    private val pageSize = 5
     private var lastPage = 0
+    private var position = 0
     private var accessToken: String? = null
     private var userId: Long = 0
-    private lateinit var usersAdapter: FeedAdapter
+    private lateinit var publications: MutableList<Publication>
+    private lateinit var feedAdapter: FeedAdapter
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -64,13 +71,17 @@ class UserFeedFragment : Fragment() {
         photoAlertBinding = FragmentDialogPhotoLoadBinding.inflate(inflater, container, false)
         dialog = DialogFactory.createAlertDialog(requireContext(), alertBinding)
         loadDialog = DialogFactory.createPhotoLoadDialog(requireContext(), photoAlertBinding)
-        usersAdapter = FeedAdapter(
+        feedAdapter = FeedAdapter(
             feedViewModel, viewLifecycleOwner, tokenStorage, findNavController(),
             requireContext(), alertRecycleBinding, confirmBanBinding, confirmDeleteBinding
         )
 
         userId = requireArguments().getLong("userId")
-        lastPage = requireArguments().getInt("pubId")
+        position = requireArguments().getInt("position")
+        val json = requireArguments().getString("publications")
+        val listType: Type = object : TypeToken<MutableList<Publication>>() {}.type
+        publications = Gson().fromJson(json, listType)
+        lastPage = publications.size / pageSize + 1
 
         return binding.root
     }
@@ -82,6 +93,8 @@ class UserFeedFragment : Fragment() {
         initBackButton()
 
         observeToken()
+        observeFeed()
+        setRefreshListener()
     }
 
     private fun initBackButton() {
@@ -112,24 +125,26 @@ class UserFeedFragment : Fragment() {
     }
 
     fun initRecyclerView() {
-        binding.searchRv.setItemViewCacheSize(pageSize)
-        binding.searchRv.layoutManager =
+        binding.feedRv.layoutManager =
             LinearLayoutManager(this.requireContext(), LinearLayoutManager.VERTICAL, false)
-        binding.searchRv.adapter = usersAdapter
+        feedAdapter.update(publications)
+        val layoutManager = binding.feedRv.layoutManager as LinearLayoutManager
+        layoutManager.scrollToPosition(position)
+        binding.feedRv.adapter = feedAdapter
 
-        val layoutManager = binding.searchRv.layoutManager as LinearLayoutManager
-        binding.searchRv.addOnScrollListener(object : RecyclerView.OnScrollListener() {
+
+        binding.feedRv.addOnScrollListener(object : RecyclerView.OnScrollListener() {
             override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
                 super.onScrolled(recyclerView, dx, dy)
 
                 val itemsCount = layoutManager.itemCount
                 val lastVisibleItem = layoutManager.findLastVisibleItemPosition()
-                if (!usersAdapter.isLoading && itemsCount == lastVisibleItem + 1 && itemsCount / pageSize == lastPage + 1) {
+                if (!feedAdapter.isLoading && itemsCount == lastVisibleItem + 1 && itemsCount / pageSize == lastPage + 1) {
                     feedViewModel.getFeed(
                         accessToken,
                         DateFilterType.NONE,
                         SortFilterType.NONE,
-                        UserFilterType.ALL,
+                        UserFilterType.SPECIFIED,
                         userId,
                         lastPage,
                         pageSize
@@ -161,41 +176,48 @@ class UserFeedFragment : Fragment() {
                 initBottomNav(false)
                 accessToken = null
             }
+        }
+    }
+
+    fun observeFeed() {
+        feedViewModel.feedResult.observe(viewLifecycleOwner) { result ->
+            when (result.status) {
+                ApiStatus.SUCCESS -> {
+                    val data = result.data!!
+                    feedAdapter.update(data)
+                    binding.refreshLayout.isRefreshing = false
+                    feedAdapter.isLoading = false
+                }
+                ApiStatus.ERROR -> {
+                    feedAdapter.isLoading = false
+                    alertBinding.textView.text = result.message.toString()
+                    dialog.show()
+                }
+                ApiStatus.LOADING -> {
+                    feedAdapter.isLoading = true
+                }
+            }
+        }
+    }
+
+    fun setRefreshListener() {
+        binding.refreshLayout.setOnRefreshListener{
+            feedAdapter.clear()
             feedViewModel.getFeed(
                 accessToken,
                 DateFilterType.NONE,
                 SortFilterType.NONE,
-                UserFilterType.ALL,
+                UserFilterType.SPECIFIED,
                 userId,
-                lastPage,
+                0,
                 pageSize
             )
+            lastPage = 0
         }
     }
 
-//    fun observeFeed() {
-//        feedViewModel.feedResult.observe(viewLifecycleOwner) { result ->
-//            when (result.status) {
-//                ApiStatus.SUCCESS -> {
-//                    val data = result.data!!
-//                    feedAdapter.update(data)
-//                    binding.refreshLayout.isRefreshing = false
-//                    feedAdapter.isLoading = false
-//                }
-//                ApiStatus.ERROR -> {
-//                    feedAdapter.isLoading = false
-//                    alertBinding.textView.text = result.message.toString()
-//                    dialog.show()
-//                }
-//                ApiStatus.LOADING -> {
-//                    feedAdapter.isLoading = true
-//                }
-//            }
-//        }
-//    }
-
     override fun onDestroyView() {
-        usersAdapter.recycleAll()
+        feedAdapter.recycleAll()
         super.onDestroyView()
     }
 

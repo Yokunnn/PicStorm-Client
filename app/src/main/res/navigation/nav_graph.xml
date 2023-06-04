@@ -123,7 +123,7 @@
         android:name="com.vsu.picstorm.presentation.UserFeedFragment"
         android:label="UserFeedFragment" >
         <argument
-            android:name="pubId"
+            android:name="position"
             app:argType="integer" />
         <action
             android:id="@+id/action_userFeedFragment_to_profileFragment"
@@ -140,5 +140,8 @@
         <action
             android:id="@+id/action_userFeedFragment_to_loginFragment"
             app:destination="@id/loginFragment" />
+        <argument
+            android:name="publications"
+            app:argType="string" />
     </fragment>
 </navigation>
