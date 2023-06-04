@@ -28,6 +28,7 @@ import com.vsu.picstorm.presentation.adapter.FeedAdapter
 import com.vsu.picstorm.util.ApiStatus
 import com.vsu.picstorm.util.DialogFactory
 import com.vsu.picstorm.viewmodel.FeedViewModel
+import com.yandex.metrica.YandexMetrica
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -165,6 +166,7 @@ class UserFeedFragment : Fragment() {
                         tokenStorage.deleteToken()
                     }
                 } else {
+                    YandexMetrica.reportEvent(getString(R.string.event_open_photo_in_specified_feed))
                     initBottomNav(true)
                     if (jwt.getClaim("id").asLong() == userId) {
                         binding.textView.text = getString(R.string.myPublications)

@@ -21,6 +21,7 @@ import com.vsu.picstorm.util.ApiStatus
 import com.vsu.picstorm.util.DialogFactory
 import com.vsu.picstorm.viewmodel.SubViewModel
 import com.vsu.picstorm.viewmodel.UserLineViewModel
+import com.yandex.metrica.YandexMetrica
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -96,6 +97,7 @@ class SubFragment : Fragment() {
     fun initLabel() {
         if (areSubscriptions) {
             binding.textView.text = resources.getText(R.string.subscriptions_title_label)
+            YandexMetrica.reportEvent(getString(R.string.event_view_subscriptions))
         } else {
             binding.textView.text = resources.getText(R.string.subscribers_title_label)
         }

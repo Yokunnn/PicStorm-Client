@@ -25,6 +25,7 @@ import com.vsu.picstorm.util.ApiStatus
 import com.vsu.picstorm.util.DialogFactory
 import com.vsu.picstorm.util.PixelConverter
 import com.vsu.picstorm.viewmodel.FeedViewModel
+import com.yandex.metrica.YandexMetrica
 import kotlinx.coroutines.launch
 import java.time.Clock
 import java.time.Instant
@@ -133,9 +134,15 @@ class FeedAdapter constructor(
             }
             deleteButton.setOnClickListener {
                 if (userId == data.ownerId) {
+                    if (navController.currentDestination?.id == R.id.userFeedFragment) {
+                        YandexMetrica.reportEvent(context.getString(R.string.event_click_delete_in_specified))
+                    }
                     confirmDeleteBinding.buttonConfirm.setOnClickListener {
                         confirmDeleteDialog.dismiss()
                         feedViewModel.deletePublication(accessToken, data.id)
+                        if (navController.currentDestination?.id == R.id.userFeedFragment) {
+                            YandexMetrica.reportEvent(context.getString(R.string.event_confirm_deletion_in_specified))
+                        }
                     }
                     confirmDeleteDialog.show()
                 } else {

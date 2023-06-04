@@ -37,6 +37,7 @@ import com.vsu.picstorm.util.ApiStatus
 import com.vsu.picstorm.util.DialogFactory
 import com.vsu.picstorm.util.PixelConverter
 import com.vsu.picstorm.viewmodel.ProfileViewModel
+import com.yandex.metrica.YandexMetrica
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 
@@ -356,10 +357,12 @@ class ProfileFragment : Fragment() {
         if (choosingAvatar) {
             profileViewModel.uploadAvatar(accessToken, bitmap)
         } else {
+            YandexMetrica.reportEvent(getString(R.string.event_choose_photo_in_profile))
             loadBinding.imageView.setImageBitmap(bitmap)
             loadBinding.buttonConfirm.setOnClickListener {
                 profileViewModel.uploadPhoto(accessToken, bitmap)
                 loadDialog.dismiss()
+                YandexMetrica.reportEvent(getString(R.string.event_confirms_photo_in_profile))
             }
             loadDialog.show()
         }
@@ -397,6 +400,7 @@ class ProfileFragment : Fragment() {
                         binding.avatarImageView.setOnClickListener{
                             showPhotoChooser(true)
                         }
+                        YandexMetrica.reportEvent(getString(R.string.event_view_his_profile))
                         startedInit = true
                     }
                 }
@@ -434,6 +438,7 @@ class ProfileFragment : Fragment() {
             )
             val width = PixelConverter.fromDP(requireContext(), binding.imageCard.layoutParams.width)
             profileViewModel.getAvatar(profileOwnerId!!, width)
+            YandexMetrica.reportEvent(getString(R.string.event_view_another_profile))
             startedInit = true
         }
     }

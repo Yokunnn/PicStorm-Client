@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="yandex_metrics_key">d85ca28b-0180-473d-908a-4dc4b6dfe821</string>
+    <string name="event_app_started">Application started</string>
+    <string name="event_view_his_profile">User viewed his profile</string>
+    <string name="event_choose_photo_in_profile">User chosen photo to download in profile</string>
+    <string name="event_confirms_photo_in_profile">User confirms photo in profile</string>
+
+    <string name="event_open_photo_in_specified_feed">User opened photo in his specified user feed</string>
+    <string name="event_click_delete_in_specified">User clicked delete photo in specified feed</string>
+    <string name="event_confirm_deletion_in_specified">User confirmed deletion</string>
+
+    <string name="event_view_another_profile">User viewed profile of another</string>
+    <string name="event_view_subscriptions">User viewed subscriptions</string>
+</resources>
