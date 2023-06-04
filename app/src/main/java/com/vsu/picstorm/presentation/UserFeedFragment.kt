@@ -115,11 +115,11 @@ class UserFeedFragment : Fragment() {
         }
         if (isAuthorised) {
             binding.bottomNav.binding.imageUser.setOnClickListener {
-                findNavController().navigate(R.id.action_userFeedFragment_to_loginFragment)
+                findNavController().navigate(R.id.action_userFeedFragment_to_profileFragment)
             }
         } else {
             binding.bottomNav.binding.imageUser.setOnClickListener {
-                findNavController().navigate(R.id.action_userFeedFragment_to_profileFragment)
+                findNavController().navigate(R.id.action_userFeedFragment_to_loginFragment)
             }
         }
     }
@@ -130,6 +130,7 @@ class UserFeedFragment : Fragment() {
         feedAdapter.update(publications)
         val layoutManager = binding.feedRv.layoutManager as LinearLayoutManager
         layoutManager.scrollToPosition(position)
+        layoutManager.stackFromEnd = position > publications.size / 2
         binding.feedRv.adapter = feedAdapter
 
 

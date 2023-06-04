@@ -111,7 +111,6 @@ class FeedAdapter constructor(
                     if (result.data != null) {
                         holder.publicationIv.setImageBitmap(result.data)
                         data.publicationHeight = result.data.height * width / result.data.width
-                        recyclerView.scrollTo(0, data.publicationHeight!!)
                     }
                 }
             }

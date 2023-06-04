@@ -110,11 +110,11 @@ class SubFragment : Fragment() {
         }
         if (isAuthorised) {
             binding.bottomNav.binding.imageUser.setOnClickListener {
-                findNavController().navigate(R.id.action_subFragment_to_loginFragment)
+                findNavController().navigate(R.id.action_subFragment_to_profileFragment)
             }
         } else {
             binding.bottomNav.binding.imageUser.setOnClickListener {
-                findNavController().navigate(R.id.action_subFragment_to_profileFragment)
+                findNavController().navigate(R.id.action_subFragment_to_loginFragment)
             }
         }
     }

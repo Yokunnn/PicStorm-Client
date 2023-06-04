@@ -337,7 +337,6 @@ class ProfileFragment : Fragment() {
 
         observeToken()
         observeProfile()
-        initBottomNav()
         observeAvatar()
         initRecyclerView()
         observeFeed()
@@ -409,9 +408,14 @@ class ProfileFragment : Fragment() {
                 } else if (authorities.contains("UPLOAD_AUTHORITY")) {
                     viewerRole = UserRole.ORDINARY
                 }
-            } else if (!startedInit) {
-                getAnotherUserProfile()
+                initBottomNav(true)
+            } else {
+                if (!startedInit) {
+                    getAnotherUserProfile()
+                }
+                initBottomNav(false)
             }
+
         }
     }
 
@@ -434,12 +438,21 @@ class ProfileFragment : Fragment() {
         }
     }
 
-    fun initBottomNav() {
+    fun initBottomNav(isAuthorised: Boolean) {
         binding.bottomNav.binding.imageList.setOnClickListener {
             findNavController().navigate(R.id.action_profileFragment_to_feedFragment)
         }
         binding.bottomNav.binding.imageSearch.setOnClickListener {
             findNavController().navigate(R.id.action_profileFragment_to_searchFragment)
+        }
+        if (isAuthorised) {
+            binding.bottomNav.binding.imageUser.setOnClickListener {
+                findNavController().navigate(R.id.profileFragment)
+            }
+        } else {
+            binding.bottomNav.binding.imageUser.setOnClickListener {
+                findNavController().navigate(R.id.action_profileFragment_to_loginFragment)
+            }
         }
     }
 
