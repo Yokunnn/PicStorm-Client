@@ -1,4 +1,4 @@
-package com.vsu.picstorm.data.model
+package com.vsu.picstorm.data.model.response
 
 import com.google.gson.annotations.SerializedName
 

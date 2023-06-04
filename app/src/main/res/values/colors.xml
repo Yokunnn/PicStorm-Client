@@ -9,8 +9,8 @@
     <color name="white">#FFFFFFFF</color>
     <color name="transparent">#00000000</color>
 
-    <color name="picStorm_pink">#F2D7D7</color>
-    <color name="picStorm_violet">#D437D7</color>
-    <color name="picStorm_light_grey">#D9D9D9</color>
+    <color name="picStorm_pink">#FFF2D7D7</color>
+    <color name="picStorm_violet">#FFD437D7</color>
+    <color name="picStorm_light_grey">#FFD9D9D9</color>
     <color name="picStorm_grey">#80000000</color>
 </resources>

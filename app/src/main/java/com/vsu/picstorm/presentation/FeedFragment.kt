@@ -18,6 +18,8 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.auth0.android.jwt.JWT
 import com.vsu.picstorm.R
 import com.vsu.picstorm.databinding.FragmentFeedBinding
@@ -27,6 +29,9 @@ import com.vsu.picstorm.viewmodel.FeedViewModel
 import com.skydoves.powerspinner.PowerSpinnerView
 import com.vsu.picstorm.databinding.FragmentDialogAlertBinding
 import com.vsu.picstorm.databinding.FragmentDialogPhotoLoadBinding
+import com.vsu.picstorm.domain.model.enums.DateFilterType
+import com.vsu.picstorm.domain.model.enums.SortFilterType
+import com.vsu.picstorm.domain.model.enums.UserFilterType
 import com.vsu.picstorm.util.ApiStatus
 import com.vsu.picstorm.util.DialogFactory
 import dagger.hilt.android.AndroidEntryPoint
@@ -48,8 +53,12 @@ class FeedFragment : Fragment() {
     private lateinit var filterRatingSpinner: PowerSpinnerView
 
     private var accessToken: String? = null
-
-    private val feedAdapter = FeedAdapter()
+    private var dateFilterType = DateFilterType.NONE
+    private var sortFilterType = SortFilterType.NONE
+    private var userFilterType = UserFilterType.ALL
+    private val pageSize: Int = 8
+    private var lastPage = 0
+    private lateinit var feedAdapter: FeedAdapter
     private var photoLauncher =
         registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
             if (result.resultCode == Activity.RESULT_OK) {
@@ -64,6 +73,8 @@ class FeedFragment : Fragment() {
     ): View {
         binding = FragmentFeedBinding.inflate(inflater, container, false)
         tokenStorage = TokenStorage(this.requireContext())
+        feedAdapter =
+            FeedAdapter(feedViewModel, viewLifecycleOwner, tokenStorage, findNavController(), requireContext())
 
         feedSpinner = binding.feedSpinner
         filterDateSpinner = binding.filterDateSpinner
@@ -79,13 +90,14 @@ class FeedFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        observeToken()
-        observeLoadResult()
-
         initRecyclerView()
 
         initFilterDateSpinner()
         initFilterRatingSpinner()
+
+        observeToken()
+        observeLoadResult()
+        observeFeed()
     }
 
     private fun observeToken() {
@@ -97,6 +109,7 @@ class FeedFragment : Fragment() {
                         tokenStorage.deleteToken()
                     }
                 } else {
+                    userFilterType = UserFilterType.SUBSCRIPTIONS
                     accessToken = token.accessToken
                     val authorities = jwta.getClaim("authorities").asList(String::class.java)
                     if (authorities.contains("UPLOAD_AUTHORITY")) {
@@ -113,11 +126,47 @@ class FeedFragment : Fragment() {
                 initPhotoLoadBtn()
                 initBottomNav(false)
             }
+            feedViewModel.getFeed(
+                accessToken,
+                dateFilterType,
+                sortFilterType,
+                userFilterType,
+                null,
+                0,
+                pageSize
+            )
         }
     }
 
     fun initRecyclerView() {
+        binding.feedRv.setItemViewCacheSize(pageSize)
+        binding.feedRv.layoutManager =
+            LinearLayoutManager(this.requireContext(), LinearLayoutManager.VERTICAL, false)
         binding.feedRv.adapter = feedAdapter
+
+        val layoutManager = binding.feedRv.layoutManager as LinearLayoutManager
+        binding.feedRv.addOnScrollListener(object : RecyclerView.OnScrollListener() {
+            override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
+                super.onScrolled(recyclerView, dx, dy)
+
+                val itemsCount = layoutManager.itemCount
+                val lastVisibleItem = layoutManager.findLastVisibleItemPosition()
+                if (!feedAdapter.isLoading && itemsCount == lastVisibleItem + 1 && itemsCount / pageSize == lastPage + 1) {
+                    feedAdapter.isLoading = true
+                    feedViewModel.getFeed(
+                        accessToken,
+                        dateFilterType,
+                        sortFilterType,
+                        userFilterType,
+                        null,
+                        itemsCount / pageSize,
+                        pageSize
+                    )
+                    feedAdapter.isLoading = false
+                    lastPage++
+                }
+            }
+        })
     }
 
     fun initPhotoLoadBtn() {
@@ -155,19 +204,36 @@ class FeedFragment : Fragment() {
         loadDialog.show()
     }
 
-    fun observeLoadResult(){
+    fun observeLoadResult() {
         feedViewModel.loadResult.observe(viewLifecycleOwner) { result ->
             when (result.status) {
-                ApiStatus.SUCCESS ->  {
+                ApiStatus.SUCCESS -> {
                     alertBinding.textView.text = resources.getString(R.string.photoWasLoaded)
                     dialog.show()
                 }
-                ApiStatus.LOADING ->  {
+                ApiStatus.LOADING -> {
 
                 }
-                ApiStatus.ERROR ->  {
+                ApiStatus.ERROR -> {
                     alertBinding.textView.text = result.message.toString()
                     dialog.show()
+                }
+            }
+        }
+    }
+
+    fun observeFeed() {
+        feedViewModel.feedResult.observe(viewLifecycleOwner) { result ->
+            when (result.status) {
+                ApiStatus.SUCCESS -> {
+                    val data = result.data!!
+                    feedAdapter.update(data)
+                }
+                ApiStatus.ERROR -> {
+                    alertBinding.textView.text = result.message.toString()
+                    dialog.show()
+                }
+                ApiStatus.LOADING -> {
                 }
             }
         }
@@ -192,8 +258,8 @@ class FeedFragment : Fragment() {
     fun initFeedSpinner() {
         with(feedSpinner) {
             visibility = View.VISIBLE
-            setItems(R.array.feedSpinnerPersonal)
-            setHint(R.string.global)
+            setItems(R.array.feedSpinnerGlobal)
+            setHint(R.string.personal)
             setOnClickListener {
                 setBackgroundResource(R.drawable.feed_spinner_openup_shape)
                 showOrDismiss()
@@ -203,11 +269,14 @@ class FeedFragment : Fragment() {
             }
             setOnSpinnerItemSelectedListener<String> { oldIndex, oldItem, newIndex, newItem ->
                 if (newItem == resources.getString(R.string.global)) {
+                    userFilterType = UserFilterType.ALL
                     setItems(R.array.feedSpinnerPersonal)
                 }
                 if (newItem == resources.getString(R.string.personal)) {
+                    userFilterType = UserFilterType.SUBSCRIPTIONS
                     setItems(R.array.feedSpinnerGlobal)
                 }
+                refreshFeed()
                 setBackgroundResource(R.drawable.feed_spinner_shape)
             }
         }
@@ -225,6 +294,18 @@ class FeedFragment : Fragment() {
                 setBackgroundResource(R.drawable.filter_spinner_shape)
             }
             setOnSpinnerItemSelectedListener<String> { oldIndex, oldItem, newIndex, newItem ->
+                when (newItem) {
+                    resources.getString(R.string.byDay) -> {
+                        dateFilterType = DateFilterType.DAY
+                    }
+                    resources.getString(R.string.byWeek) -> {
+                        dateFilterType = DateFilterType.WEEK
+                    }
+                    resources.getString(R.string.withoutFilter) -> {
+                        dateFilterType = DateFilterType.NONE
+                    }
+                }
+                refreshFeed()
                 setBackgroundResource(R.drawable.filter_spinner_shape)
             }
         }
@@ -242,9 +323,34 @@ class FeedFragment : Fragment() {
                 setBackgroundResource(R.drawable.filter_spinner_shape)
             }
             setOnSpinnerItemSelectedListener<String> { oldIndex, oldItem, newIndex, newItem ->
+                when (newItem) {
+                    resources.getString(R.string.byLikes) -> {
+                        sortFilterType = SortFilterType.LIKED_FIRST
+                    }
+                    resources.getString(R.string.byDislikes) -> {
+                        sortFilterType = SortFilterType.DISLIKED_FIRST
+                    }
+                    resources.getString(R.string.withoutFilter) -> {
+                        sortFilterType = SortFilterType.NONE
+                    }
+                }
+                refreshFeed()
                 setBackgroundResource(R.drawable.filter_spinner_shape)
             }
         }
+    }
+
+    fun refreshFeed() {
+        feedAdapter.clear()
+        feedViewModel.getFeed(
+            accessToken,
+            dateFilterType,
+            sortFilterType,
+            userFilterType,
+            null,
+            0,
+            pageSize
+        )
     }
 
     override fun onStop() {

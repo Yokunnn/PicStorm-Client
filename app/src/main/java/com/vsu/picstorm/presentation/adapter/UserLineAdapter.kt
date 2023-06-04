@@ -54,8 +54,8 @@ class UserLineAdapter constructor(
     override fun onBindViewHolder(holder: SearchViewHolder, position: Int) {
         val data = items[position]
         viewHolders[data.id] = holder
-        lifecycleOwner.lifecycleScope.launch{
-            userLineViewModel.getAvatar(data.id).collect{ result ->
+        lifecycleOwner.lifecycleScope.launch {
+            userLineViewModel.getAvatar(data.id).collect { result ->
                 if (result.status == ApiStatus.SUCCESS) {
                     holder.imageView.setImageBitmap(result.data)
                 }
@@ -96,6 +96,7 @@ class UserLineAdapter constructor(
         viewHolders.clear()
         items = emptyList<UserLine>().toMutableList()
     }
+
     fun update(data: List<UserLine>) {
         items.addAll(data)
         notifyDataSetChanged()
@@ -111,29 +112,33 @@ class UserLineAdapter constructor(
         }
     }
 
-    fun observeSubRes(){
+    fun observeSubRes() {
         userLineViewModel.subResult.observe(lifecycleOwner) { result ->
-            val holder: SearchViewHolder = viewHolders[result.first]!!
-            when (result.second.status) {
-                ApiStatus.SUCCESS ->  {
-                    with(holder) {
-                        if (result.second.data == null) {
-                            unsubButton.visibility = View.GONE
-                            subButton.visibility = View.VISIBLE
-                        } else {
-                            subButton.visibility = View.GONE
-                            unsubButton.visibility = View.VISIBLE
+            val holder: SearchViewHolder? = viewHolders[result.first]
+            holder?.let {
+                val data = items.find { user -> user.id == result.first }!!
+                when (result.second.status) {
+                    ApiStatus.SUCCESS -> {
+                        with(holder) {
+                            if (result.second.data == null) {
+                                unsubButton.visibility = View.GONE
+                                subButton.visibility = View.VISIBLE
+                            } else {
+                                subButton.visibility = View.GONE
+                                unsubButton.visibility = View.VISIBLE
+                            }
+                            unsubButton.isClickable = true
+                            subButton.isClickable = true
                         }
-                        unsubButton.isClickable = true
-                        subButton.isClickable = true
+                        data.subscribed = result.second.data != null
                     }
-                }
-                ApiStatus.ERROR ->   {
-                }
-                ApiStatus.LOADING ->  {
-                    with(holder) {
-                        unsubButton.isClickable = false
-                        subButton.isClickable = false
+                    ApiStatus.ERROR -> {
+                    }
+                    ApiStatus.LOADING -> {
+                        with(holder) {
+                            unsubButton.isClickable = false
+                            subButton.isClickable = false
+                        }
                     }
                 }
             }

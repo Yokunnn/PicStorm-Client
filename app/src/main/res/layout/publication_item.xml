@@ -3,6 +3,11 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     app:cardCornerRadius="10dp"
+    app:cardElevation="0dp"
+    android:layout_marginTop="5dp"
+    android:layout_marginBottom="5dp"
+    android:layout_marginStart="10dp"
+    android:layout_marginEnd="10dp"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools">
 
@@ -15,10 +20,10 @@
             android:layout_width="40dp"
             android:layout_height="40dp"
             android:layout_marginStart="10dp"
-            app:cardBackgroundColor="@color/picStorm_violet"
-            app:cardCornerRadius="45dp"
+            app:cardBackgroundColor="@color/picStorm_grey"
+            app:cardCornerRadius="20dp"
             app:cardElevation="0dp"
-            app:layout_constraintBottom_toTopOf="@+id/publicationImageView"
+            app:layout_constraintBottom_toTopOf="@+id/cardView"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent">
 
@@ -35,13 +40,14 @@
 
         <androidx.appcompat.widget.AppCompatButton
             android:id="@+id/nameButton"
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:background="@color/transparent"
-            android:gravity="left|center"
-            android:paddingStart="10dp"
+            android:gravity="start|center"
+            android:paddingStart="60dp"
+            android:layout_marginEnd="50dp"
             android:textAppearance="@style/Text.Forum.20"
-            app:layout_constraintBottom_toTopOf="@+id/publicationImageView"
+            app:layout_constraintBottom_toTopOf="@+id/cardView"
             app:layout_constraintStart_toEndOf="@+id/imageCard"
             app:layout_constraintTop_toTopOf="parent"
             tools:text="Name" />
@@ -54,23 +60,34 @@
             android:contentDescription="@string/contentDescription"
             android:minWidth="48dp"
             android:minHeight="48dp"
-            android:visibility="visible"
-            app:layout_constraintBottom_toTopOf="@+id/publicationImageView"
+            android:visibility="gone"
+            app:layout_constraintBottom_toTopOf="@+id/cardView"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="parent"
             app:srcCompat="@drawable/ic_delete" />
 
-        <ImageView
-            android:id="@+id/publicationImageView"
+        <androidx.cardview.widget.CardView
+            android:id="@+id/cardView"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:adjustViewBounds="true"
-            android:scaleType="fitCenter"
+            app:cardCornerRadius="10dp"
+            app:cardElevation="0dp"
             app:layout_constraintBottom_toTopOf="@+id/rateUpButton"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/nameButton"
-            tools:src="@drawable/img" />
+            app:layout_constraintTop_toBottomOf="@+id/nameButton">
+
+            <ImageView
+                android:id="@+id/publicationImageView"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:adjustViewBounds="true"
+                android:paddingStart="2dp"
+                android:paddingEnd="2dp"
+                android:scaleType="fitCenter"
+                tools:src="@drawable/img" />
+
+        </androidx.cardview.widget.CardView>
 
         <ImageButton
             android:id="@+id/rateUpButton"
@@ -78,21 +95,24 @@
             android:layout_height="wrap_content"
             android:layout_marginStart="10dp"
             android:background="@color/transparent"
-            android:minHeight="30dp"
+            android:minHeight="42dp"
+            android:minWidth="30dp"
+            app:tint="@color/picStorm_grey"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/publicationImageView"
-            app:srcCompat="@drawable/ic_rate_up" />
+            app:layout_constraintTop_toBottomOf="@+id/cardView"
+            app:srcCompat="@drawable/ic_rate_up_big" />
 
         <TextView
             android:id="@+id/rateTextView"
-            android:layout_width="40dp"
+            android:layout_width="60dp"
             android:layout_height="wrap_content"
             android:gravity="center"
-            android:textAppearance="@style/Text.Forum.12"
+            android:textColor="@color/picStorm_grey"
+            android:textAppearance="@style/Text.Forum.16"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toEndOf="@+id/rateUpButton"
-            app:layout_constraintTop_toBottomOf="@+id/publicationImageView"
+            app:layout_constraintTop_toBottomOf="@+id/cardView"
             tools:text="12312" />
 
         <ImageButton
@@ -100,22 +120,24 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:background="@color/transparent"
-            android:minHeight="30dp"
+            android:minHeight="42dp"
+            android:minWidth="30dp"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toEndOf="@+id/rateTextView"
-            app:layout_constraintTop_toBottomOf="@+id/publicationImageView"
-            app:srcCompat="@drawable/ic_rate_down" />
+            app:layout_constraintTop_toBottomOf="@+id/cardView"
+            app:srcCompat="@drawable/ic_rate_down_big"
+            app:tint="@color/picStorm_grey" />
 
         <TextView
             android:id="@+id/dateTextView"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginEnd="5dp"
-            android:textAppearance="@style/Text.Forum.12"
+            android:textAppearance="@style/Text.Forum.16"
             android:textColor="@color/picStorm_grey"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/publicationImageView"
+            app:layout_constraintTop_toBottomOf="@+id/cardView"
             tools:text="18:49" />
     </androidx.constraintlayout.widget.ConstraintLayout>
 </androidx.cardview.widget.CardView>

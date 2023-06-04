@@ -1,8 +1,7 @@
 package com.vsu.picstorm.util
 
-import androidx.compose.ui.res.stringResource
 import com.google.gson.Gson
-import com.vsu.picstorm.data.model.Error
+import com.vsu.picstorm.data.model.response.Error
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow

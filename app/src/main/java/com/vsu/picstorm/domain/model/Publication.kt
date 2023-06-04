@@ -1,13 +1,13 @@
 package com.vsu.picstorm.domain.model
 
-import android.graphics.Bitmap
 import com.vsu.picstorm.domain.model.enums.ReactionType
 import java.time.Instant
 
 data class Publication(
-    val nickname: String,
-    val pic: Bitmap,
-    val rating: Long,
-    val reactionType: ReactionType,
-    val date: Instant
+    val id: Long,
+    val ownerId: Long,
+    val ownerNickname: String,
+    var rating: Long,
+    val date: Instant,
+    var reactionType: ReactionType?
 )
