@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <style name="Text" parent="TextAppearance.AppCompat"/>
+
+    <style name="Text.ClickerScript">
+        <item name="fontFamily">@font/clicker_script</item>
+    </style>
+
+    <style name="Text.ClickerScript.50">
+        <item name="android:textSize">50sp</item>
+    </style>
+
+    <style name="Text.Forum">
+        <item name="fontFamily">@font/forum</item>
+    </style>
+
+    <style name="Text.Forum.24">
+        <item name="android:textSize">24sp</item>
+    </style>
+
+    <style name="Text.Forum.20">
+        <item name="android:textSize">20sp</item>
+    </style>
+
+    <style name="Text.Forum.16">
+        <item name="android:textSize">16sp</item>
+    </style>
+
+    <style name="Text.Forum.14">
+        <item name="android:textSize">14sp</item>
+    </style>
+
+    <style name="Text.Forum.12">
+        <item name="android:textSize">12sp</item>
+    </style>
+
+    <style name="Text.Forum.10">
+        <item name="android:textSize">10sp</item>
+    </style>
+
+    <style name="Text.Forum.20.Grey">
+        <item name="android:textColor">@color/picStorm_grey</item>
+    </style>
+
+    <style name="Text.Forum.16.Violet">
+        <item name="android:textColor">@color/picStorm_violet</item>
+    </style>
+
+</resources>

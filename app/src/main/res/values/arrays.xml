@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="feedSpinnerGlobal">
+        <item>@string/global</item>
+    </string-array>
+    <string-array name="feedSpinnerPersonal">
+        <item>@string/personal</item>
+    </string-array>
+    <string-array name="filterDateSpinner">
+        <item>@string/withoutFilter</item>
+        <item>@string/byDay</item>
+        <item>@string/byWeek</item>
+    </string-array>
+    <string-array name="filterRatingSpinner">
+        <item>@string/withoutFilter</item>
+        <item>@string/byLikes</item>
+        <item>@string/byDislikes</item>
+    </string-array>
+</resources>
