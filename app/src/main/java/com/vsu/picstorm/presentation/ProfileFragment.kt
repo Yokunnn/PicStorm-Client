@@ -478,7 +478,7 @@ class ProfileFragment : Fragment() {
                         accessToken,
                         DateFilterType.NONE,
                         SortFilterType.NONE,
-                        UserFilterType.ALL,
+                        UserFilterType.SPECIFIED,
                         profileOwnerId,
                         itemsCount / pageSize,
                         pageSize

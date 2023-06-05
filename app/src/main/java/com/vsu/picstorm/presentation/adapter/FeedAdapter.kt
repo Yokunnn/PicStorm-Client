@@ -375,7 +375,6 @@ class FeedAdapter constructor(
     fun deleteById(publicationId: Long) {
         recycleViewHolder(viewHolders[publicationId]!!)
         viewHolders.remove(publicationId)
-        publications.filter { publication -> publicationId != publication.id }
         var i = 0
         for (p in publications.withIndex()) {
             if (p.value.id == publicationId) {
