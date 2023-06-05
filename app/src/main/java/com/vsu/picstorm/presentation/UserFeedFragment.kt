@@ -176,6 +176,7 @@ class UserFeedFragment : Fragment() {
                     accessToken = token.accessToken
                 }
             } else {
+                binding.textView.text = getString(R.string.userPublications)
                 initBottomNav(false)
                 accessToken = null
             }
