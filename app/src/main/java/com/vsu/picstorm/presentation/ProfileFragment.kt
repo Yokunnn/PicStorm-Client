@@ -511,11 +511,11 @@ class ProfileFragment : Fragment() {
         }
     }
 
-    override fun onDestroyView() {
+    override fun onDestroy() {
         binding.avatarImageView.drawable?.toBitmapOrNull()?.recycle()
         binding.avatarImageView.setImageBitmap(null)
         feedAdapter.recycleAll()
-        super.onDestroyView()
+        super.onDestroy()
     }
 
     fun setRefreshListener() {

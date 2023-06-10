@@ -220,9 +220,9 @@ class UserFeedFragment : Fragment() {
         }
     }
 
-    override fun onDestroyView() {
+    override fun onDestroy() {
         feedAdapter.recycleAll()
-        super.onDestroyView()
+        super.onDestroy()
     }
 
 }

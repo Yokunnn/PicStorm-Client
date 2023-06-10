@@ -8,6 +8,7 @@ import android.graphics.ImageDecoder
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
+import android.os.Parcelable
 import android.provider.MediaStore
 import android.view.LayoutInflater
 import android.view.View
@@ -56,11 +57,11 @@ class FeedFragment : Fragment() {
     private lateinit var filterRatingSpinner: PowerSpinnerView
 
     private var accessToken: String? = null
-    private var dateFilterType = DateFilterType.NONE
-    private var sortFilterType = SortFilterType.NONE
-    private var userFilterType = UserFilterType.ALL
+    private lateinit var dateFilterType: DateFilterType
+    private lateinit var sortFilterType: SortFilterType
+    private lateinit var userFilterType: UserFilterType
     private val pageSize: Int = 5
-    private var lastPage = 0
+    private var lastPage: Int = 0
     private lateinit var feedAdapter: FeedAdapter
     private var photoLauncher =
         registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
@@ -88,8 +89,15 @@ class FeedFragment : Fragment() {
         photoAlertBinding = FragmentDialogPhotoLoadBinding.inflate(inflater, container, false)
         dialog = DialogFactory.createAlertDialog(requireContext(), alertBinding)
         loadDialog = DialogFactory.createPhotoLoadDialog(requireContext(), photoAlertBinding)
-        feedAdapter = FeedAdapter(feedViewModel, viewLifecycleOwner, tokenStorage, findNavController(),
-                requireContext(), alertRecycleBinding, confirmBanBinding, confirmDeleteBinding)
+        feedAdapter = FeedAdapter(
+            feedViewModel, viewLifecycleOwner, tokenStorage, findNavController(),
+            requireContext(), alertRecycleBinding, confirmBanBinding, confirmDeleteBinding
+        )
+
+        dateFilterType = DateFilterType.NONE
+        sortFilterType = SortFilterType.NONE
+        userFilterType = UserFilterType.ALL
+        lastPage = 0
 
         return binding.root
     }
@@ -109,10 +117,11 @@ class FeedFragment : Fragment() {
     }
 
     fun setRefreshListener() {
-        binding.refreshLayout.setOnRefreshListener{
+        binding.refreshLayout.setOnRefreshListener {
             refreshFeed()
         }
     }
+
     private fun observeToken() {
         tokenStorage.token.observe(viewLifecycleOwner) { token ->
             if (token.accessToken != "null") {
@@ -375,8 +384,8 @@ class FeedFragment : Fragment() {
         super.onStop()
     }
 
-    override fun onDestroyView() {
+    override fun onDestroy() {
         feedAdapter.recycleAll()
-        super.onDestroyView()
+        super.onDestroy()
     }
 }

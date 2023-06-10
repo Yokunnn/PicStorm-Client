@@ -170,8 +170,8 @@ class SubFragment : Fragment() {
         }
     }
 
-    override fun onDestroyView() {
+    override fun onDestroy() {
         usersAdapter.recycleAll()
-        super.onDestroyView()
+        super.onDestroy()
     }
 }

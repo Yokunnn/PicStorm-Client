@@ -160,8 +160,8 @@ class SearchFragment : Fragment() {
         }
     }
 
-    override fun onDestroyView() {
+    override fun onDestroy() {
         searchAdapter.recycleAll()
-        super.onDestroyView()
+        super.onDestroy()
     }
 }

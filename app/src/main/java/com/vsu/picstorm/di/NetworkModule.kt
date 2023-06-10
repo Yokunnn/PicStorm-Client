@@ -22,7 +22,7 @@ val Context.dataStore: DataStore<Preferences> by preferencesDataStore(name="user
 @InstallIn(SingletonComponent::class)
 object NetworkModule {
 
-    private const val BASE_URL = "http://158.160.39.62/api/"
+    private const val BASE_URL = "https://picstorm.ru/api/"
 
     @Singleton
     @Provides
