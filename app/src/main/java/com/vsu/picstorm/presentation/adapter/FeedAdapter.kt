@@ -2,7 +2,6 @@ package com.vsu.picstorm.presentation.adapter
 
 import android.app.Dialog
 import android.content.Context
-import android.os.Build
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -32,6 +31,7 @@ import java.time.Clock
 import java.time.Instant
 import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
+import java.util.Locale
 
 class FeedAdapter constructor(
     private val feedViewModel: FeedViewModel,
@@ -111,6 +111,7 @@ class FeedAdapter constructor(
             feedViewModel.getPublicationPhoto(data.id, width).collect { result ->
                 if (result.status == ApiStatus.SUCCESS) {
                     if (result.data != null) {
+                        holder.publicationIv.layoutParams.height = ViewGroup.LayoutParams.WRAP_CONTENT
                         holder.publicationIv.setImageBitmap(result.data)
                         data.publicationHeight = result.data.height * width / result.data.width
                     }
@@ -300,15 +301,11 @@ class FeedAdapter constructor(
             if (time.year == timeCurr.year && time.dayOfYear == timeCurr.dayOfYear) {
                 DateTimeFormatter.ofPattern("HH:mm")
             } else if (time.year == timeCurr.year) {
-                DateTimeFormatter.ofPattern("dd MM")
+                DateTimeFormatter.ofPattern("dd MMM")
             } else {
                 DateTimeFormatter.ofPattern("yyyy")
             }
-        formatter = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-            formatter.withLocale(context.resources.configuration.locales.get(0))
-        } else {
-            formatter.withLocale(context.resources.configuration.locale)
-        }
+        formatter = formatter.withLocale(Locale("ru"))
         return formatter.format(time)
     }
 
