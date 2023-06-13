@@ -336,10 +336,8 @@ class ProfileFragment : Fragment() {
 
     private fun showPhotoChooser(choosingAvatar: Boolean) {
         this.choosingAvatar = choosingAvatar
-        val intent = Intent(
-            Intent.ACTION_PICK,
-            MediaStore.Images.Media.EXTERNAL_CONTENT_URI
-        )
+        val intent = Intent(Intent.ACTION_PICK)
+        intent.setDataAndType(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, "image/*")
         photoLauncher.launch(intent)
     }
 
