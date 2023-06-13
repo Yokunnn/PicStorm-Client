@@ -17,7 +17,11 @@ class LoginViewModel @Inject constructor(
     private val loginRepository: LoginRepositoryImpl
 ) : ViewModel() {
 
-    val loginResult = MutableLiveData<ApiResult<Token>>()
+    lateinit var loginResult: MutableLiveData<ApiResult<Token>>
+
+    fun init() {
+        loginResult = MutableLiveData<ApiResult<Token>>()
+    }
 
     fun login(userLogin: UserLogin) {
         viewModelScope.launch(Dispatchers.IO) {

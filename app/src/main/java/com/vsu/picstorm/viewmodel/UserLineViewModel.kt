@@ -19,7 +19,11 @@ class UserLineViewModel @Inject constructor(
     private val profileRepository: ProfileRepositoryImpl
 ) : ViewModel() {
 
-    val subResult = MutableLiveData<Pair<Long, ApiResult<Long>>>()
+    lateinit var subResult: MutableLiveData<Pair<Long, ApiResult<Long>>>
+
+    fun init() {
+        subResult = MutableLiveData<Pair<Long, ApiResult<Long>>>()
+    }
 
     fun changeSubscribe(token: String?, userId: Long) {
         viewModelScope.launch(Dispatchers.IO) {

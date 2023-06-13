@@ -16,7 +16,11 @@ class SearchViewModel @Inject constructor(
     private val searchRepository: SearchRepositoryImpl
 ) : ViewModel() {
 
-    val searchResult = MutableLiveData<Pair<Int, ApiResult<List<UserLine>>>>()
+    lateinit var searchResult: MutableLiveData<Pair<Int, ApiResult<List<UserLine>>>>
+
+    fun init() {
+        searchResult = MutableLiveData<Pair<Int, ApiResult<List<UserLine>>>>()
+    }
 
     fun search(token: String?, name: String, index: Int, size: Int) {
         viewModelScope.launch(Dispatchers.IO) {

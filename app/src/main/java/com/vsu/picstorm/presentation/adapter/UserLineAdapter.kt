@@ -14,6 +14,7 @@ import com.vsu.picstorm.R
 import com.vsu.picstorm.databinding.SearchItemBinding
 import com.vsu.picstorm.domain.TokenStorage
 import com.vsu.picstorm.domain.model.UserLine
+import com.vsu.picstorm.domain.model.enums.HttpStatus
 import com.vsu.picstorm.util.ApiStatus
 import com.vsu.picstorm.util.PixelConverter
 import com.vsu.picstorm.viewmodel.UserLineViewModel
@@ -111,17 +112,13 @@ class UserLineAdapter constructor(
         notifyItemRangeInserted(index, data.size)
     }
 
-    fun observeToken() {
+    private fun observeToken() {
         tokenStorage.token.observe(lifecycleOwner) { token ->
-            accessToken = if (token.accessToken != "null") {
-                token.accessToken
-            } else {
-                null
-            }
+            accessToken = token.accessToken
         }
     }
 
-    fun observeSubRes() {
+    private fun observeSubRes() {
         userLineViewModel.subResult.observe(lifecycleOwner) { result ->
             val holder: UserViewHolder? = viewHolders[result.first]
             holder?.let {
@@ -142,6 +139,12 @@ class UserLineAdapter constructor(
                         data.subscribed = result.second.data != null
                     }
                     ApiStatus.ERROR -> {
+                        if (result.second.statusCode == HttpStatus.FORBIDDEN.code) {
+                            lifecycleOwner.lifecycleScope.launch {
+                                tokenStorage.deleteToken()
+                                navController.navigate(R.id.feedFragment)
+                            }
+                        }
                     }
                     ApiStatus.LOADING -> {
                         with(holder) {
@@ -165,7 +168,7 @@ class UserLineAdapter constructor(
         }
     }
 
-    fun recycleViewHolder(holder: UserLineAdapter.UserViewHolder) {
+    private fun recycleViewHolder(holder: UserLineAdapter.UserViewHolder) {
         holder.imageView.drawable?.toBitmapOrNull()?.recycle()
         holder.imageView.setImageBitmap(null)
     }

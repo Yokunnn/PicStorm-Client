@@ -2,20 +2,20 @@ package com.vsu.picstorm.presentation
 
 import android.app.Dialog
 import android.os.Bundle
-import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.auth0.android.jwt.JWT
 import com.vsu.picstorm.R
 import com.vsu.picstorm.databinding.FragmentDialogAlertBinding
 import com.vsu.picstorm.databinding.FragmentSubBinding
 import com.vsu.picstorm.domain.TokenStorage
+import com.vsu.picstorm.domain.model.enums.HttpStatus
 import com.vsu.picstorm.presentation.adapter.UserLineAdapter
 import com.vsu.picstorm.util.ApiStatus
 import com.vsu.picstorm.util.DialogFactory
@@ -23,7 +23,6 @@ import com.vsu.picstorm.viewmodel.SubViewModel
 import com.vsu.picstorm.viewmodel.UserLineViewModel
 import com.yandex.metrica.YandexMetrica
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
@@ -45,7 +44,9 @@ class SubFragment : Fragment() {
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
+    ): View {
+        subViewModel.init()
+        userLineViewModel.init()
         binding = FragmentSubBinding.inflate(inflater, container, false)
         tokenStorage = TokenStorage(this.requireContext())
         usersAdapter = UserLineAdapter(userLineViewModel, viewLifecycleOwner, tokenStorage, findNavController(), requireContext())
@@ -74,7 +75,7 @@ class SubFragment : Fragment() {
         }
     }
 
-    fun observeSubs() {
+    private fun observeSubs() {
         subViewModel.subsResult.observe(viewLifecycleOwner) { result ->
             when (result.status) {
                 ApiStatus.SUCCESS ->  {
@@ -88,13 +89,19 @@ class SubFragment : Fragment() {
                     dialog.show()
                 }
                 ApiStatus.LOADING ->  {
+                    if (result.statusCode == HttpStatus.FORBIDDEN.code) {
+                        lifecycleScope.launch {
+                            tokenStorage.deleteToken()
+                            findNavController().navigate(R.id.action_subFragment_to_feedFragment)
+                        }
+                    }
                     usersAdapter.isLoading = true
                 }
             }
         }
     }
 
-    fun initLabel() {
+    private fun initLabel() {
         if (areSubscriptions) {
             binding.textView.text = resources.getText(R.string.subscriptions_title_label)
             YandexMetrica.reportEvent(getString(R.string.event_view_subscriptions))
@@ -103,7 +110,7 @@ class SubFragment : Fragment() {
         }
     }
 
-    fun initBottomNav(isAuthorised: Boolean) {
+    private fun initBottomNav(isAuthorised: Boolean) {
         binding.bottomNav.binding.imageList.setOnClickListener {
             findNavController().navigate(R.id.action_subFragment_to_feedFragment)
         }
@@ -120,7 +127,7 @@ class SubFragment : Fragment() {
             }
         }
     }
-    fun initRecyclerView() {
+    private fun initRecyclerView() {
         binding.searchRv.setItemViewCacheSize(pageSize)
         binding.searchRv.layoutManager =
             LinearLayoutManager(this.requireContext(), LinearLayoutManager.VERTICAL, false)
@@ -145,28 +152,20 @@ class SubFragment : Fragment() {
         })
     }
 
-    fun observeToken() {
+    private fun observeToken() {
         tokenStorage.token.observe(viewLifecycleOwner) { token ->
-            if (token.accessToken != "null") {
-                val jwt = JWT(token.accessToken)
-                if (jwt.isExpired(0)) {
-                    lifecycleScope.launch(Dispatchers.IO) {
-                        tokenStorage.deleteToken()
-                    }
-                } else {
-                    initBottomNav(true)
-                    accessToken = token.accessToken
-                }
+            accessToken = if (token.accessToken != null) {
+                initBottomNav(true)
+                token.accessToken
             } else {
                 initBottomNav(false)
-                accessToken = null
+                null
             }
             if (areSubscriptions) {
                 subViewModel.getSubscriptions(accessToken, userId, lastPage, pageSize)
             } else {
                 subViewModel.getSubscribers(accessToken, userId, lastPage, pageSize)
             }
-
         }
     }
 

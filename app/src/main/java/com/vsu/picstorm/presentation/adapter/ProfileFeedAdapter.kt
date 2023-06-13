@@ -82,7 +82,7 @@ class ProfileFeedAdapter constructor(
         }
     }
 
-    fun recycleViewHolder(holder: ProfileFeedAdapter.ProfileFeedViewHolder) {
+    private fun recycleViewHolder(holder: ProfileFeedAdapter.ProfileFeedViewHolder) {
         holder.imageView.drawable?.toBitmapOrNull()?.recycle()
         holder.imageView.setImageBitmap(null)
     }

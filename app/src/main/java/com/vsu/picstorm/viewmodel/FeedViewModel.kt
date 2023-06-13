@@ -4,6 +4,7 @@ import android.graphics.Bitmap
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.vsu.picstorm.data.repository.ConfigurationRepositoryImpl
 import com.vsu.picstorm.data.repository.FeedRepositoryImpl
 import com.vsu.picstorm.data.repository.ProfileRepositoryImpl
 import com.vsu.picstorm.domain.model.Publication
@@ -24,14 +25,25 @@ import javax.inject.Inject
 @HiltViewModel
 class FeedViewModel @Inject constructor(
     private val feedRepository: FeedRepositoryImpl,
-    private val profileRepository: ProfileRepositoryImpl
+    private val profileRepository: ProfileRepositoryImpl,
+    private val configurationRepository: ConfigurationRepositoryImpl,
 ) : ViewModel() {
 
-    val loadResult = MutableLiveData<ApiResult<Void>>()
-    val feedResult = MutableLiveData<ApiResult<List<Publication>>>()
-    val deleteResult = MutableLiveData<Pair<Long, ApiResult<Void>>>()
-    val banResult = MutableLiveData<Pair<Long, ApiResult<Void>>>()
-    val reactResult = MutableLiveData<Pair<Long, ApiResult<ReactionType?>>>()
+    lateinit var loadResult: MutableLiveData<ApiResult<Void>>
+    lateinit var feedResult: MutableLiveData<ApiResult<List<Publication>>>
+    lateinit var deleteResult: MutableLiveData<Pair<Long, ApiResult<Void>>>
+    lateinit var banResult: MutableLiveData<Pair<Long, ApiResult<Void>>>
+    lateinit var reactResult: MutableLiveData<Pair<Long, ApiResult<ReactionType?>>>
+    lateinit var hasUploadButton: MutableLiveData<Boolean>
+
+    fun init() {
+        loadResult = MutableLiveData<ApiResult<Void>>()
+        feedResult = MutableLiveData<ApiResult<List<Publication>>>()
+        deleteResult = MutableLiveData<Pair<Long, ApiResult<Void>>>()
+        banResult = MutableLiveData<Pair<Long, ApiResult<Void>>>()
+        reactResult = MutableLiveData<Pair<Long, ApiResult<ReactionType?>>>()
+        hasUploadButton = MutableLiveData<Boolean>()
+    }
 
     fun loadPhoto(token: String?, image: Bitmap) {
         viewModelScope.launch(Dispatchers.IO) {
@@ -96,5 +108,9 @@ class FeedViewModel @Inject constructor(
                 reactResult.postValue(Pair(publicationId, result))
             }
         }
+    }
+
+    fun loadConfigValues() {
+        hasUploadButton.postValue(configurationRepository.hasUploadPhotoButton)
     }
 }

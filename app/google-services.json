@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "947563506155",
+    "project_id": "picstorm-project",
+    "storage_bucket": "picstorm-project.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:947563506155:android:247c8c9d02b9e6e4f691ae",
+        "android_client_info": {
+          "package_name": "com.vsu.picstorm"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "947563506155-f3nbk97o474k3njsp6emgnhagsk2odsu.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCHrsjgXhAM8zYUL-kC9uMB0gJzGGQBbJw"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "947563506155-f3nbk97o474k3njsp6emgnhagsk2odsu.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

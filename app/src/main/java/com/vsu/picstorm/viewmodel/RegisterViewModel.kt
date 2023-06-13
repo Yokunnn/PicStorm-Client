@@ -17,7 +17,11 @@ class RegisterViewModel @Inject constructor(
     private val registerRepository: RegisterRepositoryImpl
 ) : ViewModel() {
 
-    val registerResult = MutableLiveData<ApiResult<Token>>()
+    lateinit var registerResult: MutableLiveData<ApiResult<Token>>
+
+    fun init() {
+        registerResult = MutableLiveData<ApiResult<Token>>()
+    }
 
     fun register(userRegister: UserRegister) {
         viewModelScope.launch(Dispatchers.IO) {

@@ -8,7 +8,6 @@ import android.graphics.ImageDecoder
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
-import android.os.Parcelable
 import android.provider.MediaStore
 import android.view.LayoutInflater
 import android.view.View
@@ -21,6 +20,8 @@ import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.auth0.android.jwt.JWT
+import com.google.firebase.analytics.ktx.analytics
+import com.google.firebase.ktx.Firebase
 import com.skydoves.powerspinner.PowerSpinnerView
 import com.vsu.picstorm.R
 import com.vsu.picstorm.databinding.FragmentDialogAlertBinding
@@ -29,6 +30,7 @@ import com.vsu.picstorm.databinding.FragmentDialogPhotoLoadBinding
 import com.vsu.picstorm.databinding.FragmentFeedBinding
 import com.vsu.picstorm.domain.TokenStorage
 import com.vsu.picstorm.domain.model.enums.DateFilterType
+import com.vsu.picstorm.domain.model.enums.HttpStatus
 import com.vsu.picstorm.domain.model.enums.SortFilterType
 import com.vsu.picstorm.domain.model.enums.UserFilterType
 import com.vsu.picstorm.presentation.adapter.FeedAdapter
@@ -36,12 +38,12 @@ import com.vsu.picstorm.util.ApiStatus
 import com.vsu.picstorm.util.DialogFactory
 import com.vsu.picstorm.viewmodel.FeedViewModel
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
 class FeedFragment : Fragment() {
 
+    private val feedViewModel: FeedViewModel by viewModels()
     private lateinit var binding: FragmentFeedBinding
     private lateinit var alertBinding: FragmentDialogAlertBinding
     private lateinit var alertRecycleBinding: FragmentDialogAlertBinding
@@ -50,7 +52,6 @@ class FeedFragment : Fragment() {
     private lateinit var photoAlertBinding: FragmentDialogPhotoLoadBinding
     private lateinit var dialog: Dialog
     private lateinit var loadDialog: Dialog
-    private val feedViewModel: FeedViewModel by viewModels()
     private lateinit var tokenStorage: TokenStorage
     private lateinit var feedSpinner: PowerSpinnerView
     private lateinit var filterDateSpinner: PowerSpinnerView
@@ -75,6 +76,7 @@ class FeedFragment : Fragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
+        feedViewModel.init()
         binding = FragmentFeedBinding.inflate(inflater, container, false)
         tokenStorage = TokenStorage(this.requireContext())
 
@@ -114,9 +116,10 @@ class FeedFragment : Fragment() {
         observeLoadResult()
         observeFeed()
         setRefreshListener()
+        observeUploadButtonState()
     }
 
-    fun setRefreshListener() {
+    private fun setRefreshListener() {
         binding.refreshLayout.setOnRefreshListener {
             refreshFeed()
         }
@@ -124,27 +127,23 @@ class FeedFragment : Fragment() {
 
     private fun observeToken() {
         tokenStorage.token.observe(viewLifecycleOwner) { token ->
-            if (token.accessToken != "null") {
+            if (token.accessToken != null) {
                 val jwta = JWT(token.accessToken)
-                if (jwta.isExpired(0)) {
-                    lifecycleScope.launch(Dispatchers.IO) {
-                        tokenStorage.deleteToken()
-                    }
+                userFilterType = UserFilterType.SUBSCRIPTIONS
+                accessToken = token.accessToken
+                val authorities = jwta.getClaim("authorities").asList(String::class.java)
+                if (authorities.contains("UPLOAD_AUTHORITY")) {
+                    initPhotoLoadBtnAuthorized()
+                    initBottomNav(true)
+                    initFeedSpinner()
                 } else {
-                    userFilterType = UserFilterType.SUBSCRIPTIONS
-                    accessToken = token.accessToken
-                    val authorities = jwta.getClaim("authorities").asList(String::class.java)
-                    if (authorities.contains("UPLOAD_AUTHORITY")) {
-                        initPhotoLoadBtnAuthorized()
-                        initBottomNav(true)
-                        initFeedSpinner()
-                    } else {
-                        initPhotoLoadBtn()
-                        initBottomNav(false)
-                    }
+                    initPhotoLoadBtn()
+                    initBottomNav(false)
                 }
             } else {
                 accessToken = null
+                Firebase.analytics.logEvent(getString(R.string.unauthorized_enter_feed), null)
+                feedViewModel.loadConfigValues()
                 initPhotoLoadBtn()
                 initBottomNav(false)
             }
@@ -160,7 +159,7 @@ class FeedFragment : Fragment() {
         }
     }
 
-    fun initRecyclerView() {
+    private fun initRecyclerView() {
         binding.feedRv.layoutManager =
             LinearLayoutManager(this.requireContext(), LinearLayoutManager.VERTICAL, false)
         binding.feedRv.adapter = feedAdapter
@@ -188,24 +187,24 @@ class FeedFragment : Fragment() {
         })
     }
 
-    fun initPhotoLoadBtn() {
+    private fun initPhotoLoadBtn() {
         binding.photoLoadBtn.setOnClickListener {
             findNavController().navigate(R.id.action_feedFragment_to_loginFragment)
         }
     }
 
-    fun initPhotoLoadBtnAuthorized() {
+    private fun initPhotoLoadBtnAuthorized() {
         binding.photoLoadBtn.setOnClickListener {
             showFileChooser()
         }
     }
 
-    fun showFileChooser() {
+    private fun showFileChooser() {
         val intent = Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI)
         photoLauncher.launch(intent)
     }
 
-    fun uploadPhoto(uri: Uri) {
+    private fun uploadPhoto(uri: Uri) {
         val bitmap: Bitmap = if (Build.VERSION.SDK_INT < 28) {
             MediaStore.Images.Media.getBitmap(
                 activity?.contentResolver!!,
@@ -223,7 +222,7 @@ class FeedFragment : Fragment() {
         loadDialog.show()
     }
 
-    fun observeLoadResult() {
+    private fun observeLoadResult() {
         feedViewModel.loadResult.observe(viewLifecycleOwner) { result ->
             when (result.status) {
                 ApiStatus.SUCCESS -> {
@@ -241,7 +240,7 @@ class FeedFragment : Fragment() {
         }
     }
 
-    fun observeFeed() {
+    private fun observeFeed() {
         feedViewModel.feedResult.observe(viewLifecycleOwner) { result ->
             when (result.status) {
                 ApiStatus.SUCCESS -> {
@@ -251,6 +250,12 @@ class FeedFragment : Fragment() {
                     feedAdapter.isLoading = false
                 }
                 ApiStatus.ERROR -> {
+                    if (result.statusCode == HttpStatus.FORBIDDEN.code) {
+                        lifecycleScope.launch {
+                            tokenStorage.deleteToken()
+                            findNavController().navigate(R.id.feedFragment)
+                        }
+                    }
                     feedAdapter.isLoading = false
                     alertBinding.textView.text = result.message.toString()
                     dialog.show()
@@ -262,7 +267,7 @@ class FeedFragment : Fragment() {
         }
     }
 
-    fun initBottomNav(isAuthorised: Boolean) {
+    private fun initBottomNav(isAuthorised: Boolean) {
         binding.bottomNav.binding.imageSearch.setOnClickListener {
             findNavController().navigate(R.id.action_feedFragment_to_searchFragment)
         }
@@ -278,7 +283,7 @@ class FeedFragment : Fragment() {
 
     }
 
-    fun initFeedSpinner() {
+    private fun initFeedSpinner() {
         with(feedSpinner) {
             visibility = View.VISIBLE
             setItems(R.array.feedSpinnerGlobal)
@@ -305,7 +310,7 @@ class FeedFragment : Fragment() {
         }
     }
 
-    fun initFilterDateSpinner() {
+    private fun initFilterDateSpinner() {
         with(filterDateSpinner) {
             setItems(R.array.filterDateSpinner)
             setHint(R.string.dateFilter)
@@ -334,7 +339,7 @@ class FeedFragment : Fragment() {
         }
     }
 
-    fun initFilterRatingSpinner() {
+    private fun initFilterRatingSpinner() {
         with(filterRatingSpinner) {
             setItems(R.array.filterRatingSpinner)
             setHint(R.string.ratingFilter)
@@ -363,7 +368,7 @@ class FeedFragment : Fragment() {
         }
     }
 
-    fun refreshFeed() {
+    private fun refreshFeed() {
         feedAdapter.clear()
         feedViewModel.getFeed(
             accessToken,
@@ -375,6 +380,16 @@ class FeedFragment : Fragment() {
             pageSize
         )
         lastPage = 0
+    }
+
+    private fun observeUploadButtonState() {
+        feedViewModel.hasUploadButton.observe(viewLifecycleOwner) { hasUploadButton ->
+            if (!hasUploadButton) {
+                binding.photoLoadBtn.visibility = View.GONE
+            } else {
+                binding.photoLoadBtn.visibility = View.VISIBLE
+            }
+        }
     }
 
     override fun onStop() {

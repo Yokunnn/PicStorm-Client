@@ -33,13 +33,13 @@ object RequestUtils {
                                 response.errorBody()?.close()
                                 error.message.trim()
                             } ?: "Что-то пошло не так"
-                            trySend(ApiResult.Error(errorMsg))
+                            trySend(ApiResult.Error(response.code(), errorMsg))
                         }
                     }
 
                     override fun onFailure(call: Call<R>, t: Throwable) {
                         val errorMsg = "Нет соединения с сервером"
-                        trySend(ApiResult.Error(errorMsg))
+                        trySend(ApiResult.Error(0, errorMsg))
                     }
                 }
             )

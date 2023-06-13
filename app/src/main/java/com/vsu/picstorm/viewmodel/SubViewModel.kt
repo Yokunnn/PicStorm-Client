@@ -16,7 +16,11 @@ class SubViewModel @Inject constructor(
     private val subscribeRepository: SubscriptionRepositoryImpl
 ) : ViewModel() {
 
-    val subsResult = MutableLiveData<ApiResult<List<UserLine>>>()
+    lateinit var subsResult: MutableLiveData<ApiResult<List<UserLine>>>
+
+    fun init() {
+        subsResult = MutableLiveData<ApiResult<List<UserLine>>>()
+    }
 
     fun getSubscribers(token: String?, userId: Long, index: Int, size: Int) {
         viewModelScope.launch(Dispatchers.IO) {

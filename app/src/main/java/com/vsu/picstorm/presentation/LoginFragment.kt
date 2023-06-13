@@ -33,6 +33,7 @@ class LoginFragment : Fragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
+        loginViewModel.init()
         binding = FragmentLoginBinding.inflate(inflater, container, false)
         alertBinding = FragmentDialogAlertBinding.inflate(inflater, container, false)
         tokenStorage = TokenStorage(this.requireContext())
@@ -47,7 +48,7 @@ class LoginFragment : Fragment() {
         observeLoginResult()
     }
 
-    fun initButtons() {
+    private fun initButtons() {
         binding.buttonLogin.setOnClickListener {
             loginViewModel.login(
                 UserLogin(
@@ -64,7 +65,7 @@ class LoginFragment : Fragment() {
         }
     }
 
-    fun observeLoginResult() {
+    private fun observeLoginResult() {
         loginViewModel.loginResult.observe(viewLifecycleOwner) { result ->
             when (result.status) {
                 ApiStatus.SUCCESS ->  {

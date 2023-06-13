@@ -12,18 +12,17 @@ import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.auth0.android.jwt.JWT
 import com.vsu.picstorm.R
 import com.vsu.picstorm.databinding.FragmentDialogAlertBinding
 import com.vsu.picstorm.databinding.FragmentSearchBinding
 import com.vsu.picstorm.domain.TokenStorage
+import com.vsu.picstorm.domain.model.enums.HttpStatus
 import com.vsu.picstorm.presentation.adapter.UserLineAdapter
 import com.vsu.picstorm.util.ApiStatus
 import com.vsu.picstorm.util.DialogFactory
 import com.vsu.picstorm.viewmodel.SearchViewModel
 import com.vsu.picstorm.viewmodel.UserLineViewModel
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
@@ -44,6 +43,8 @@ class SearchFragment : Fragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
+        searchViewModel.init()
+        userLineViewModel.init()
         binding = FragmentSearchBinding.inflate(inflater, container, false)
         tokenStorage = TokenStorage(this.requireContext())
         searchAdapter = UserLineAdapter(userLineViewModel, viewLifecycleOwner, tokenStorage, findNavController(), requireContext())
@@ -63,7 +64,7 @@ class SearchFragment : Fragment() {
         observeSearchResult()
     }
 
-    fun addTextListener() {
+    private fun addTextListener() {
         binding.editTextSearch.addTextChangedListener {
             lastPage = 0
             searchViewModel.search(
@@ -75,7 +76,7 @@ class SearchFragment : Fragment() {
         }
     }
 
-    fun initBottomNav(isAuthorised: Boolean) {
+    private fun initBottomNav(isAuthorised: Boolean) {
         binding.bottomNav.binding.imageList.setOnClickListener {
             findNavController().navigate(R.id.action_searchFragment_to_feedFragment)
         }
@@ -90,7 +91,7 @@ class SearchFragment : Fragment() {
         }
     }
 
-    fun initRecyclerView() {
+    private fun initRecyclerView() {
         binding.searchRv.setItemViewCacheSize(pageSize)
         binding.searchRv.layoutManager =
             LinearLayoutManager(this.requireContext(), LinearLayoutManager.VERTICAL, false)
@@ -116,27 +117,20 @@ class SearchFragment : Fragment() {
         })
     }
 
-    fun observeToken() {
+    private fun observeToken() {
         tokenStorage.token.observe(viewLifecycleOwner) { token ->
-            if (token.accessToken != "null") {
-                val jwt = JWT(token.accessToken)
-                if (jwt.isExpired(0)) {
-                    lifecycleScope.launch(Dispatchers.IO) {
-                        tokenStorage.deleteToken()
-                    }
-                } else {
-                    initBottomNav(true)
-                    accessToken = token.accessToken
-                }
+            accessToken = if (token.accessToken != null) {
+                initBottomNav(true)
+                token.accessToken
             } else {
                 initBottomNav(false)
-                accessToken = null
+                null
             }
             searchViewModel.search(accessToken, "", lastPage, pageSize)
         }
     }
 
-    fun observeSearchResult() {
+    private fun observeSearchResult() {
         searchViewModel.searchResult.observe(viewLifecycleOwner) { result ->
             when (result.second.status) {
                 ApiStatus.SUCCESS ->  {
@@ -150,6 +144,12 @@ class SearchFragment : Fragment() {
                 }
                 ApiStatus.ERROR ->   {
                     searchAdapter.isLoading = false
+                    if (result.second.statusCode == HttpStatus.FORBIDDEN.code) {
+                        lifecycleScope.launch {
+                            tokenStorage.deleteToken()
+                            findNavController().navigate(R.id.action_searchFragment_to_feedFragment)
+                        }
+                    }
                     alertBinding.textView.text = result.second.message.toString()
                     dialog.show()
                 }

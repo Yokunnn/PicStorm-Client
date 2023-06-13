@@ -1,10 +1,7 @@
 package com.vsu.picstorm.presentation
 
-import android.app.AlertDialog
 import android.app.Dialog
 import android.os.Bundle
-import android.util.Log
-import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -12,9 +9,10 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
+import com.google.firebase.analytics.ktx.analytics
+import com.google.firebase.ktx.Firebase
 import com.vsu.picstorm.R
 import com.vsu.picstorm.databinding.FragmentDialogAlertBinding
-import com.vsu.picstorm.databinding.FragmentDialogConfirmBinding
 import com.vsu.picstorm.databinding.FragmentRegisterBinding
 import com.vsu.picstorm.domain.TokenStorage
 import com.vsu.picstorm.domain.model.UserRegister
@@ -37,6 +35,7 @@ class RegisterFragment : Fragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
+        registerViewModel.init()
         binding = FragmentRegisterBinding.inflate(inflater, container, false)
         alertBinding = FragmentDialogAlertBinding.inflate(inflater, container, false)
         tokenStorage = TokenStorage(this.requireContext())
@@ -52,7 +51,7 @@ class RegisterFragment : Fragment() {
         observeRegisterResult()
     }
 
-    fun initButtons() {
+    private fun initButtons() {
         binding.buttonReg.setOnClickListener {
             val password = binding.editTextPassword.text.toString().trim()
             val passRepeat = binding.editTextPasswordRepeat.text.toString().trim()
@@ -77,14 +76,14 @@ class RegisterFragment : Fragment() {
         }
     }
 
-    fun observeRegisterResult() {
+    private fun observeRegisterResult() {
         registerViewModel.registerResult.observe(viewLifecycleOwner) { result ->
             when (result.status) {
                 ApiStatus.SUCCESS -> {
+                    Firebase.analytics.logEvent(getString(R.string.user_registered), null)
                     lifecycleScope.launch {
                         val token = result.data!!
                         tokenStorage.saveToken(token)
-                        Log.i("Token access", token.accessToken)
                         findNavController().navigate(R.id.action_registerFragment_to_feedFragment)
                     }
                 }

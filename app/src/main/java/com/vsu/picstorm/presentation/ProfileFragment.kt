@@ -29,6 +29,7 @@ import com.vsu.picstorm.databinding.FragmentProfileBinding
 import com.vsu.picstorm.domain.TokenStorage
 import com.vsu.picstorm.domain.model.Profile
 import com.vsu.picstorm.domain.model.enums.DateFilterType
+import com.vsu.picstorm.domain.model.enums.HttpStatus
 import com.vsu.picstorm.domain.model.enums.SortFilterType
 import com.vsu.picstorm.domain.model.enums.UserFilterType
 import com.vsu.picstorm.domain.model.enums.UserRole
@@ -77,7 +78,8 @@ class ProfileFragment : Fragment() {
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
+    ): View {
+        profileViewModel.init()
         binding = FragmentProfileBinding.inflate(inflater, container, false)
         tokenStorage = TokenStorage(this.requireContext())
 
@@ -91,10 +93,15 @@ class ProfileFragment : Fragment() {
         confirmBanDialog = DialogFactory.createConfirmDialog(requireContext(), confirmBanBinding)
         feedAdapter = ProfileFeedAdapter(profileViewModel, viewLifecycleOwner, requireContext(), findNavController())
 
+        viewerId = null
+        startedInit = false
+        profileOwnerId = null
+        lastPage = 0
+
         return binding.root
     }
 
-    fun observeAvatar() {
+    private fun observeAvatar() {
         profileViewModel.avatarResult.observe(viewLifecycleOwner) { result ->
             when (result.status) {
                 ApiStatus.SUCCESS -> {
@@ -106,7 +113,7 @@ class ProfileFragment : Fragment() {
         }
     }
 
-    fun observeProfile() {
+    private fun observeProfile() {
         profileViewModel.profileResult.observe(viewLifecycleOwner) { result ->
             when (result.status) {
                 ApiStatus.SUCCESS -> {
@@ -163,6 +170,9 @@ class ProfileFragment : Fragment() {
                 }
 
                 ApiStatus.ERROR -> {
+                    if (result.statusCode == HttpStatus.FORBIDDEN.code) {
+                        logout()
+                    }
                 }
 
                 ApiStatus.LOADING -> {
@@ -190,7 +200,7 @@ class ProfileFragment : Fragment() {
         }
     }
 
-    fun observeSubResult() {
+    private fun observeSubResult() {
         profileViewModel.subResult.observe(viewLifecycleOwner) { result ->
             when (result.status) {
                 ApiStatus.SUCCESS ->  {
@@ -207,7 +217,7 @@ class ProfileFragment : Fragment() {
                     }
                     binding.unsubBtn.isClickable = true
                     binding.subBtn.isClickable = true
-                    binding.subscribersTv.text = "${resources.getString(R.string.subscribers_label)} ${subscribers}"
+                    binding.subscribersTv.text = "${resources.getString(R.string.subscribers_label)} $subscribers"
                 }
                 ApiStatus.ERROR ->   {
                 }
@@ -219,7 +229,7 @@ class ProfileFragment : Fragment() {
         }
     }
 
-    fun refreshActionButtons(userRole: UserRole) {
+    private fun refreshActionButtons(userRole: UserRole) {
         var actionButtons = 0
         if (viewerRole == UserRole.SUPER_ADMIN) {
             binding.adminBtn.visibility = View.VISIBLE
@@ -255,7 +265,7 @@ class ProfileFragment : Fragment() {
         }
     }
 
-    fun handlePhotoUpload() {
+    private fun handlePhotoUpload() {
         profileViewModel.uploadPhotoResult.observe(viewLifecycleOwner) { result ->
             when (result.status) {
                 ApiStatus.SUCCESS ->  {
@@ -291,7 +301,7 @@ class ProfileFragment : Fragment() {
         }
     }
 
-    fun observeChangeAdminResult() {
+    private fun observeChangeAdminResult() {
         profileViewModel.changeAdminResult.observe(viewLifecycleOwner) { result ->
             when (result.status) {
                 ApiStatus.SUCCESS ->  {
@@ -309,7 +319,7 @@ class ProfileFragment : Fragment() {
         }
     }
 
-    fun observeBanUserResult() {
+    private fun observeBanUserResult() {
         profileViewModel.banUserResult.observe(viewLifecycleOwner) { result ->
             when (result.status) {
                 ApiStatus.SUCCESS ->  {
@@ -324,7 +334,7 @@ class ProfileFragment : Fragment() {
         }
     }
 
-    fun showPhotoChooser(choosingAvatar: Boolean) {
+    private fun showPhotoChooser(choosingAvatar: Boolean) {
         this.choosingAvatar = choosingAvatar
         val intent = Intent(
             Intent.ACTION_PICK,
@@ -344,7 +354,7 @@ class ProfileFragment : Fragment() {
         setRefreshListener()
     }
 
-    fun uploadPhoto(uri: Uri) {
+    private fun uploadPhoto(uri: Uri) {
         val bitmap: Bitmap = if (Build.VERSION.SDK_INT < 28) {
             MediaStore.Images.Media.getBitmap(
                 activity?.contentResolver!!,
@@ -368,16 +378,16 @@ class ProfileFragment : Fragment() {
         }
     }
 
-    fun logout() {
+    private fun logout() {
         lifecycleScope.launch {
             tokenStorage.deleteToken()
             findNavController().navigate(R.id.action_profileFragment_to_feedFragment)
         }
     }
 
-    fun observeToken() {
+    private fun observeToken() {
         tokenStorage.token.observe(viewLifecycleOwner) { token ->
-            if (token.accessToken != "null") {
+            if (token.accessToken != null) {
                 accessToken = token.accessToken
                 val jwta = JWT(token.accessToken)
                 viewerId = jwta.getClaim("id").asLong()
@@ -423,7 +433,7 @@ class ProfileFragment : Fragment() {
         }
     }
 
-    fun getAnotherUserProfile() {
+    private fun getAnotherUserProfile() {
         if (requireArguments().containsKey("id")) {
             profileOwnerId = requireArguments().getLong("id")
             profileViewModel.getProfile(accessToken, profileOwnerId!!)
@@ -443,7 +453,7 @@ class ProfileFragment : Fragment() {
         }
     }
 
-    fun initBottomNav(isAuthorised: Boolean) {
+    private fun initBottomNav(isAuthorised: Boolean) {
         binding.bottomNav.binding.imageList.setOnClickListener {
             findNavController().navigate(R.id.action_profileFragment_to_feedFragment)
         }
@@ -461,7 +471,7 @@ class ProfileFragment : Fragment() {
         }
     }
 
-    fun initRecyclerView() {
+    private fun initRecyclerView() {
         binding.photoRv.layoutManager = StaggeredGridLayoutManager(3, StaggeredGridLayoutManager.VERTICAL)
         binding.photoRv.adapter = feedAdapter
 
@@ -489,7 +499,7 @@ class ProfileFragment : Fragment() {
         })
     }
 
-    fun observeFeed() {
+    private fun observeFeed() {
         profileViewModel.feedResult.observe(viewLifecycleOwner) { result ->
             when (result.status) {
                 ApiStatus.SUCCESS -> {
@@ -518,13 +528,13 @@ class ProfileFragment : Fragment() {
         super.onDestroy()
     }
 
-    fun setRefreshListener() {
+    private fun setRefreshListener() {
         binding.refreshLayout.setOnRefreshListener{
             refreshFeed()
         }
     }
 
-    fun refreshFeed() {
+    private fun refreshFeed() {
         feedAdapter.clear()
         profileViewModel.getFeed(
             accessToken,

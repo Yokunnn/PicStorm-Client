@@ -22,6 +22,7 @@ import com.vsu.picstorm.databinding.FragmentUserFeedBinding
 import com.vsu.picstorm.domain.TokenStorage
 import com.vsu.picstorm.domain.model.Publication
 import com.vsu.picstorm.domain.model.enums.DateFilterType
+import com.vsu.picstorm.domain.model.enums.HttpStatus
 import com.vsu.picstorm.domain.model.enums.SortFilterType
 import com.vsu.picstorm.domain.model.enums.UserFilterType
 import com.vsu.picstorm.presentation.adapter.FeedAdapter
@@ -30,7 +31,6 @@ import com.vsu.picstorm.util.DialogFactory
 import com.vsu.picstorm.viewmodel.FeedViewModel
 import com.yandex.metrica.YandexMetrica
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import java.lang.reflect.Type
 
@@ -61,7 +61,8 @@ class UserFeedFragment : Fragment() {
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
+    ): View {
+        feedViewModel.init()
         binding = FragmentUserFeedBinding.inflate(inflater, container, false)
         tokenStorage = TokenStorage(this.requireContext())
 
@@ -107,7 +108,7 @@ class UserFeedFragment : Fragment() {
     }
 
 
-    fun initBottomNav(isAuthorised: Boolean) {
+    private fun initBottomNav(isAuthorised: Boolean) {
         binding.bottomNav.binding.imageList.setOnClickListener {
             findNavController().navigate(R.id.action_userFeedFragment_to_feedFragment)
         }
@@ -125,7 +126,7 @@ class UserFeedFragment : Fragment() {
         }
     }
 
-    fun initRecyclerView() {
+    private fun initRecyclerView() {
         binding.feedRv.layoutManager =
             LinearLayoutManager(this.requireContext(), LinearLayoutManager.VERTICAL, false)
         feedAdapter.update(publications)
@@ -157,25 +158,19 @@ class UserFeedFragment : Fragment() {
         })
     }
 
-    fun observeToken() {
+    private fun observeToken() {
         tokenStorage.token.observe(viewLifecycleOwner) { token ->
-            if (token.accessToken != "null") {
+            if (token.accessToken != null) {
                 val jwt = JWT(token.accessToken)
-                if (jwt.isExpired(0)) {
-                    lifecycleScope.launch(Dispatchers.IO) {
-                        tokenStorage.deleteToken()
-                    }
+                initBottomNav(true)
+                if (jwt.getClaim("id").asLong() == userId) {
+                    binding.textView.text = getString(R.string.myPublications)
                 } else {
-                    YandexMetrica.reportEvent(getString(R.string.event_open_photo_in_specified_feed))
-                    initBottomNav(true)
-                    if (jwt.getClaim("id").asLong() == userId) {
-                        binding.textView.text = getString(R.string.myPublications)
-                    } else {
-                        binding.textView.text = getString(R.string.userPublications)
-                    }
-                    accessToken = token.accessToken
+                    binding.textView.text = getString(R.string.userPublications)
                 }
+                accessToken = token.accessToken
             } else {
+                YandexMetrica.reportEvent(getString(R.string.event_open_photo_in_specified_feed))
                 binding.textView.text = getString(R.string.userPublications)
                 initBottomNav(false)
                 accessToken = null
@@ -183,7 +178,7 @@ class UserFeedFragment : Fragment() {
         }
     }
 
-    fun observeFeed() {
+    private fun observeFeed() {
         feedViewModel.feedResult.observe(viewLifecycleOwner) { result ->
             when (result.status) {
                 ApiStatus.SUCCESS -> {
@@ -198,13 +193,19 @@ class UserFeedFragment : Fragment() {
                     dialog.show()
                 }
                 ApiStatus.LOADING -> {
+                    if (result.statusCode == HttpStatus.FORBIDDEN.code) {
+                        lifecycleScope.launch {
+                            tokenStorage.deleteToken()
+                            findNavController().navigate(R.id.action_userFeedFragment_to_feedFragment)
+                        }
+                    }
                     feedAdapter.isLoading = true
                 }
             }
         }
     }
 
-    fun setRefreshListener() {
+    private fun setRefreshListener() {
         binding.refreshLayout.setOnRefreshListener{
             feedAdapter.clear()
             feedViewModel.getFeed(

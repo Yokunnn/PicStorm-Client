@@ -2,6 +2,7 @@ package com.vsu.picstorm
 
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
+import com.google.firebase.FirebaseApp
 import com.vsu.picstorm.databinding.ActivityMainBinding
 import com.yandex.metrica.YandexMetrica
 import com.yandex.metrica.YandexMetricaConfig
@@ -15,9 +16,10 @@ class MainActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        FirebaseApp.initializeApp(this)
 
-        buildYandexMetricsConfig();
-        buildYandexMetricsStartSession();
+        buildYandexMetricsConfig()
+        buildYandexMetricsStartSession()
 
         YandexMetrica.reportEvent(getString(R.string.event_app_started))
 

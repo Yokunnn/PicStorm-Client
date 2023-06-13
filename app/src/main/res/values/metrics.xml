@@ -12,4 +12,8 @@
 
     <string name="event_view_another_profile">User viewed profile of another</string>
     <string name="event_view_subscriptions">User viewed subscriptions</string>
+
+    <!-- For Google Analytics -->
+    <string name="unauthorized_enter_feed">unauthorized_enter_feed</string>
+    <string name="user_registered">user_registered</string>
 </resources>

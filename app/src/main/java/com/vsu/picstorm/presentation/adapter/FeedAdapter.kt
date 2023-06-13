@@ -20,6 +20,7 @@ import com.vsu.picstorm.databinding.FragmentDialogConfirmBinding
 import com.vsu.picstorm.databinding.PublicationItemBinding
 import com.vsu.picstorm.domain.TokenStorage
 import com.vsu.picstorm.domain.model.Publication
+import com.vsu.picstorm.domain.model.enums.HttpStatus
 import com.vsu.picstorm.domain.model.enums.ReactionType
 import com.vsu.picstorm.util.ApiStatus
 import com.vsu.picstorm.util.DialogFactory
@@ -267,7 +268,7 @@ class FeedAdapter constructor(
         }
     }
 
-    fun initDialogs() {
+    private fun initDialogs() {
         confirmBanBinding.textView.text = context.getString(R.string.banPublicationConfirm)
         confirmDeleteBinding.textView.text = context.getString(R.string.deletePublicationConfirm)
     }
@@ -283,7 +284,7 @@ class FeedAdapter constructor(
         }
     }
 
-    fun recycleViewHolder(holder: FeedViewHolder) {
+    private fun recycleViewHolder(holder: FeedViewHolder) {
         holder.publicationIv.drawable?.toBitmapOrNull()?.recycle()
         holder.avatarIv.drawable?.toBitmapOrNull()?.recycle()
         holder.publicationIv.setImageBitmap(null)
@@ -292,7 +293,7 @@ class FeedAdapter constructor(
 
     override fun getItemCount(): Int = publications.size
 
-    fun reformatDate(date: Instant): String {
+    private fun reformatDate(date: Instant): String {
         val time = date.atZone(Clock.systemDefaultZone().zone)
         val timeCurr = ZonedDateTime.now()
         var formatter: DateTimeFormatter =
@@ -324,9 +325,9 @@ class FeedAdapter constructor(
         notifyItemRangeInserted(index, data.size)
     }
 
-    fun observeToken() {
+    private fun observeToken() {
         tokenStorage.token.observe(lifecycleOwner) { token ->
-            if (token.accessToken != "null") {
+            if (token.accessToken != null) {
                 accessToken = token.accessToken
                 val jwt = JWT(accessToken!!)
                 userId = jwt.getClaim("id").asLong()
@@ -340,13 +341,19 @@ class FeedAdapter constructor(
         }
     }
 
-    fun observeBanRes() {
+    private fun observeBanRes() {
         feedViewModel.banResult.observe(lifecycleOwner) { result ->
             when (result.second.status) {
                 ApiStatus.SUCCESS -> {
                     deleteById(result.first)
                 }
                 ApiStatus.ERROR -> {
+                    if (result.second.statusCode == HttpStatus.FORBIDDEN.code) {
+                        lifecycleOwner.lifecycleScope.launch {
+                            tokenStorage.deleteToken()
+                            navController.navigate(R.id.feedFragment)
+                        }
+                    }
                     alertBinding.textView.text = result.second.message
                     alertDialog.show()
                 }
@@ -356,13 +363,19 @@ class FeedAdapter constructor(
         }
     }
 
-    fun observeDeleteRes() {
+    private fun observeDeleteRes() {
         feedViewModel.deleteResult.observe(lifecycleOwner) { result ->
             when (result.second.status) {
                 ApiStatus.SUCCESS -> {
                     deleteById(result.first)
                 }
                 ApiStatus.ERROR -> {
+                    if (result.second.statusCode == HttpStatus.FORBIDDEN.code) {
+                        lifecycleOwner.lifecycleScope.launch {
+                            tokenStorage.deleteToken()
+                            navController.navigate(R.id.feedFragment)
+                        }
+                    }
                     alertBinding.textView.text = result.second.message
                     alertDialog.show()
                 }
@@ -372,7 +385,7 @@ class FeedAdapter constructor(
         }
     }
 
-    fun deleteById(publicationId: Long) {
+    private fun deleteById(publicationId: Long) {
         recycleViewHolder(viewHolders[publicationId]!!)
         viewHolders.remove(publicationId)
         var i = 0
@@ -385,7 +398,7 @@ class FeedAdapter constructor(
         notifyItemRemoved(i)
     }
 
-    fun observeReactRes() {
+    private fun observeReactRes() {
         feedViewModel.reactResult.observe(lifecycleOwner) { result ->
             val holder: FeedAdapter.FeedViewHolder? = viewHolders[result.first]
             holder?.let {

@@ -29,14 +29,25 @@ class ProfileViewModel @Inject constructor(
     private val subscribeRepository: SubscriptionRepositoryImpl,
 ) : ViewModel() {
 
-    val profileResult = MutableLiveData<ApiResult<Profile>>()
-    val avatarResult = MutableLiveData<ApiResult<Bitmap>>()
-    val uploadPhotoResult = MutableLiveData<ApiResult<Void>>()
-    val uploadAvatarResult = MutableLiveData<ApiResult<Void>>()
-    val changeAdminResult = MutableLiveData<ApiResult<UserRole>>()
-    val banUserResult = MutableLiveData<ApiResult<UserRole>>()
-    val subResult = MutableLiveData<ApiResult<Long>>()
-    val feedResult = MutableLiveData<ApiResult<List<Publication>>>()
+    lateinit var profileResult: MutableLiveData<ApiResult<Profile>>
+    lateinit var avatarResult: MutableLiveData<ApiResult<Bitmap>>
+    lateinit var uploadPhotoResult: MutableLiveData<ApiResult<Void>>
+    lateinit var uploadAvatarResult: MutableLiveData<ApiResult<Void>>
+    lateinit var changeAdminResult: MutableLiveData<ApiResult<UserRole>>
+    lateinit var banUserResult: MutableLiveData<ApiResult<UserRole>>
+    lateinit var subResult: MutableLiveData<ApiResult<Long>>
+    lateinit var feedResult: MutableLiveData<ApiResult<List<Publication>>>
+
+    fun init() {
+        profileResult = MutableLiveData<ApiResult<Profile>>()
+        avatarResult = MutableLiveData<ApiResult<Bitmap>>()
+        uploadPhotoResult = MutableLiveData<ApiResult<Void>>()
+        uploadAvatarResult = MutableLiveData<ApiResult<Void>>()
+        changeAdminResult = MutableLiveData<ApiResult<UserRole>>()
+        banUserResult = MutableLiveData<ApiResult<UserRole>>()
+        subResult = MutableLiveData<ApiResult<Long>>()
+        feedResult = MutableLiveData<ApiResult<List<Publication>>>()
+    }
 
     fun getFeed(
         token: String?,
